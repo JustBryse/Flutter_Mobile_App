@@ -1,0 +1,47 @@
+import 'package:cao_prototype/models/user.dart';
+import 'package:cao_prototype/support/queries.dart';
+import 'package:cao_prototype/models/interest.dart';
+import 'package:cao_prototype/support/server.dart';
+import 'dart:convert';
+
+class Organization extends User {
+  String _name = "";
+  String get name => _name;
+
+  Organization.all(
+      int id, String email, String password, String alias, String name)
+      : super.all(id, email, password, alias) {
+    _name = name;
+  }
+
+  static registerOrganization(String email, String password, String alias,
+      String name, List<Interest> interests) async {
+    QueryResult qr = QueryResult();
+    try {
+      Map<String, dynamic> arguments = {
+        "email": email,
+        "password": User.getHashedPassword(password),
+        "alias": alias,
+        "name": name,
+      };
+
+      List<Map<String, dynamic>> mappedInterests = List.empty(growable: true);
+      for (int i = 0; i < interests.length; ++i) {
+        mappedInterests.add(interests[i].toMap());
+      }
+
+      arguments["interests"] = jsonEncode(mappedInterests);
+
+      var response =
+          await Server.submitGetRequest(arguments, "register/organization");
+      Map<String, dynamic> fields = jsonDecode(response);
+
+      qr.result = fields["result"];
+      qr.message = fields["message"];
+    } catch (e) {
+      print("Error in Individual.registerIndividual(): $e");
+    }
+
+    return qr;
+  }
+}
