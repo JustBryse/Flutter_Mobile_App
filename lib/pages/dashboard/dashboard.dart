@@ -1,4 +1,4 @@
-import 'package:cao_prototype/pages/dashboard/bridge.dart';
+import 'package:cao_prototype/pages/dashboard/bridge/bridge.dart';
 import 'package:cao_prototype/pages/dashboard/feed/feed.dart';
 import 'package:cao_prototype/pages/dashboard/hub.dart';
 import 'package:cao_prototype/pages/dashboard/map.dart';
@@ -9,9 +9,9 @@ class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
   static final Map<String, int> _pageIndexes = {
-    "Feed": 0,
-    "Hub": 1,
-    "Bridge": 2,
+    "Bridge": 0,
+    "Feed": 1,
+    "Hub": 2,
     "Map": 3
   };
   static get pageIndexes => _pageIndexes;
@@ -30,9 +30,9 @@ class _DashboardPageState extends State<DashboardPage> {
         controller: pageController,
         scrollDirection: Axis.horizontal,
         children: [
+          DashboardBridge(pc: pageController),
           DashboardFeed(pc: pageController),
           DashboardHub(pc: pageController),
-          DashboardBridge(pc: pageController),
           DashboardMap(pc: pageController),
         ],
       ),

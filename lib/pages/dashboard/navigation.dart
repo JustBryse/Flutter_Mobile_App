@@ -1,3 +1,4 @@
+import 'package:cao_prototype/support/utility.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/pages/dashboard/dashboard.dart';
 
@@ -35,20 +36,24 @@ class DashboardNavigationRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
+          onPressed: navigateToBridge,
+          icon: const Icon(Icons.newspaper),
+          color: Utility.tertiaryColor,
+        ),
+        IconButton(
           onPressed: navigateToFeed,
           icon: const Icon(Icons.feed),
+          color: Utility.tertiaryColor,
         ),
         IconButton(
           onPressed: navigateToHub,
           icon: const Icon(Icons.hub),
-        ),
-        IconButton(
-          onPressed: navigateToBridge,
-          icon: const Icon(Icons.water),
+          color: Utility.tertiaryColor,
         ),
         IconButton(
           onPressed: navigateToMap,
           icon: const Icon(Icons.map),
+          color: Utility.tertiaryColor,
         ),
       ],
     );
