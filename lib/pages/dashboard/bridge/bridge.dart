@@ -1,5 +1,6 @@
 import 'package:cao_prototype/models/university.dart';
 import 'package:cao_prototype/pages/dashboard/bridge/components/message_bubble.dart';
+import 'package:cao_prototype/support/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:cao_prototype/pages/dashboard/navigation.dart';
@@ -32,24 +33,47 @@ class _DashboardBridgeState extends State<DashboardBridge> {
       List.empty(growable: true);
   // holds the currently selected university that the user can ask questions about
   University selectedUniversity = University.none();
+  // used to indicate the state of loading or fetching information from the server
+  bool isLoading = false;
 
-  void initializeMessageBubbles() {
-    messageBubbles.clear();
-    for (int i = 0; i < 20; ++i) {
-      String message =
-          "Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message: $i";
-      bool isChatbotMessage = true;
+  @override
+  void initState() {
+    super.initState();
+    fetchUniversities();
+  }
 
-      if (i % 2 == 0) {
-        isChatbotMessage = false;
-      }
-      MessageBubble mb =
-          MessageBubble(message: message, isChatbotMessage: isChatbotMessage);
-      messageBubbles.add(mb);
-    }
+  // fetch university data for the university dropdown list
+  void fetchUniversities() async {
     setState(() {
-      messageBubbles;
+      isLoading = true;
     });
+
+    QueryResult qr = await University.getUniversities();
+
+    if (qr.result == false) {
+      Utility.displayAlertMessage(
+          context, "Failed to Fetch Data", "Please try again.");
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    universityDropdownButtons.clear();
+
+    for (University university in qr.data) {
+      universityDropdownButtons.add(
+        DropdownMenuEntry<University>(
+          value: university,
+          label: university.getName(),
+        ),
+      );
+
+      setState(() {
+        universityDropdownButtons;
+        isLoading = false;
+      });
+    }
   }
 
   // allows the user to select the university that they want to ask questions about
@@ -62,6 +86,7 @@ class _DashboardBridgeState extends State<DashboardBridge> {
       return;
     }
 
+    // this is for UI testing only, proper request will be made to the server later
     messageBubbles.add(
       MessageBubble(message: chatbotQueryTEC.text, isChatbotMessage: false),
     );
@@ -72,7 +97,6 @@ class _DashboardBridgeState extends State<DashboardBridge> {
 
   @override
   Widget build(BuildContext context) {
-    //initializeMessageBubbles();
     return Scaffold(
       backgroundColor: Utility.secondaryColor,
       appBar: AppBar(
@@ -88,83 +112,97 @@ class _DashboardBridgeState extends State<DashboardBridge> {
         ),
         backgroundColor: Utility.primaryColor,
       ),
-      body: Column(
-        children: [
-          // dropdown university menu
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Utility.primaryColorTranslucent,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                DropdownMenu(
-                  menuStyle: MenuStyle(
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => Utility.tertiaryColor),
-                  ),
-                  width: MediaQuery.of(context).size.width * 0.25,
-                  leadingIcon: const Icon(
-                    Icons.school,
-                    color: Utility.primaryColor,
-                  ),
-                  trailingIcon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Utility.primaryColor,
-                  ),
-                  initialSelection: selectedUniversity,
-                  dropdownMenuEntries: universityDropdownButtons,
-                  onSelected: selectUniversity,
+      body: isLoading
+          ? Container(
+              color: Utility.tertiaryColor,
+              child: const Center(
+                child: Text(
+                  "Fetching Data. Please wait.",
+                  style: TextStyle(fontSize: 20, color: Utility.secondaryColor),
                 ),
-              ],
-            ),
-          ),
-          // message bubble list
-          Expanded(
-            child: ListView.builder(
-              itemBuilder: (context, index) {
-                if (index < messageBubbles.length) {
-                  return messageBubbles[index];
-                }
-              },
-            ),
-          ),
-          // message input form
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Utility.primaryColorTranslucent,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: TextField(
-                    cursorColor: Utility.primaryColor,
-                    cursorWidth: 1,
-                    decoration: const InputDecoration(
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Utility.primaryColor),
-                      ),
+              ),
+            )
+          : AbsorbPointer(
+              absorbing: isLoading,
+              child: Column(
+                children: [
+                  // dropdown university menu
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Utility.primaryColorTranslucent,
                     ),
-                    controller: chatbotQueryTEC,
-                    keyboardType: TextInputType.text,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        DropdownMenu(
+                          menuStyle: MenuStyle(
+                            backgroundColor: MaterialStateColor.resolveWith(
+                                (states) => Utility.tertiaryColor),
+                          ),
+                          width: MediaQuery.of(context).size.width * 0.25,
+                          leadingIcon: const Icon(
+                            Icons.school,
+                            color: Utility.primaryColor,
+                          ),
+                          trailingIcon: const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Utility.primaryColor,
+                          ),
+                          initialSelection: selectedUniversity,
+                          dropdownMenuEntries: universityDropdownButtons,
+                          onSelected: selectUniversity,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                IconButton(
-                  onPressed: sendMessage,
-                  icon: const Icon(
-                    Icons.send,
-                    color: Utility.primaryColor,
+                  // message bubble list
+                  Expanded(
+                    child: ListView.builder(
+                      itemBuilder: (context, index) {
+                        if (index < messageBubbles.length) {
+                          return messageBubbles[index];
+                        }
+                      },
+                    ),
                   ),
-                ),
-              ],
+                  // message input form
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Utility.primaryColorTranslucent,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          child: TextField(
+                            cursorColor: Utility.primaryColor,
+                            cursorWidth: 1,
+                            decoration: const InputDecoration(
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Utility.primaryColor),
+                              ),
+                            ),
+                            controller: chatbotQueryTEC,
+                            keyboardType: TextInputType.text,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: sendMessage,
+                          icon: const Icon(
+                            Icons.send,
+                            color: Utility.primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
     );
   }
 }
