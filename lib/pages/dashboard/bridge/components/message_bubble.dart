@@ -19,7 +19,6 @@ class MessageBubble extends StatefulWidget {
 }
 
 class _MessageBubbleState extends State<MessageBubble> {
-  TextEditingController bubbleTextTEC = TextEditingController();
   MainAxisAlignment bubbleAlignment = MainAxisAlignment.center;
   TextAlign bubbleTextAlignment = TextAlign.center;
   Color bubbleColor = Colors.black;
@@ -35,37 +34,33 @@ class _MessageBubbleState extends State<MessageBubble> {
       bubbleAlignment = MainAxisAlignment.end;
       bubbleTextAlignment = TextAlign.end;
       bubbleColor = Utility.primaryColorTranslucent;
-      bubbleTextColor = Utility.primaryColor;
+      bubbleTextColor = Utility.secondaryColor;
     }
-    bubbleTextTEC.text = widget._message;
   }
 
   @override
   Widget build(BuildContext context) {
     initializeMessageBubble();
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.75,
-      decoration: BoxDecoration(
-        color: bubbleColor,
-      ),
+    return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: bubbleAlignment,
         children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.75,
-            child: TextField(
-              style: TextStyle(color: bubbleTextColor),
-              textAlignVertical: TextAlignVertical.top,
+          Container(
+            constraints: BoxConstraints(
+                maxHeight: double.maxFinite,
+                maxWidth: MediaQuery.of(context).size.width * 0.75),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color.fromARGB(1, 0, 0, 0)),
+              color: bubbleColor,
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              widget._message,
               textAlign: bubbleTextAlignment,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                enabled: false,
-                contentPadding: EdgeInsets.all(4),
-              ),
-              controller: bubbleTextTEC,
-              readOnly: true,
               maxLines: null,
+              style: TextStyle(color: bubbleTextColor),
             ),
           ),
         ],

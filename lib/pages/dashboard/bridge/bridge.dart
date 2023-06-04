@@ -1,3 +1,4 @@
+import 'package:cao_prototype/models/university.dart';
 import 'package:cao_prototype/pages/dashboard/bridge/components/message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
@@ -26,6 +27,11 @@ class _DashboardBridgeState extends State<DashboardBridge> {
   TextEditingController chatbotQueryTEC = TextEditingController();
   // holds a list of message bubble UI components
   List<MessageBubble> messageBubbles = List.empty(growable: true);
+  // holds the universities that the user can choose to ask questions about
+  List<DropdownMenuEntry<University>> universityDropdownButtons =
+      List.empty(growable: true);
+  // holds the currently selected university that the user can ask questions about
+  University selectedUniversity = University.none();
 
   void initializeMessageBubbles() {
     messageBubbles.clear();
@@ -46,13 +52,27 @@ class _DashboardBridgeState extends State<DashboardBridge> {
     });
   }
 
+  // allows the user to select the university that they want to ask questions about
+  void selectUniversity(University? university) {}
+
+  // sends messages to the chatbot
   void sendMessage() {
-    String userMessage = chatbotQueryTEC.text;
+    // abort conditions
+    if (chatbotQueryTEC.text.isEmpty) {
+      return;
+    }
+
+    messageBubbles.add(
+      MessageBubble(message: chatbotQueryTEC.text, isChatbotMessage: false),
+    );
+    setState(() {
+      messageBubbles;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    initializeMessageBubbles();
+    //initializeMessageBubbles();
     return Scaffold(
       backgroundColor: Utility.secondaryColor,
       appBar: AppBar(
@@ -70,6 +90,37 @@ class _DashboardBridgeState extends State<DashboardBridge> {
       ),
       body: Column(
         children: [
+          // dropdown university menu
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Utility.primaryColorTranslucent,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                DropdownMenu(
+                  menuStyle: MenuStyle(
+                    backgroundColor: MaterialStateColor.resolveWith(
+                        (states) => Utility.tertiaryColor),
+                  ),
+                  width: MediaQuery.of(context).size.width * 0.25,
+                  leadingIcon: const Icon(
+                    Icons.school,
+                    color: Utility.primaryColor,
+                  ),
+                  trailingIcon: const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Utility.primaryColor,
+                  ),
+                  initialSelection: selectedUniversity,
+                  dropdownMenuEntries: universityDropdownButtons,
+                  onSelected: selectUniversity,
+                ),
+              ],
+            ),
+          ),
+          // message bubble list
           Expanded(
             child: ListView.builder(
               itemBuilder: (context, index) {
@@ -79,6 +130,7 @@ class _DashboardBridgeState extends State<DashboardBridge> {
               },
             ),
           ),
+          // message input form
           Container(
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
@@ -113,13 +165,6 @@ class _DashboardBridgeState extends State<DashboardBridge> {
           ),
         ],
       ),
-
-      /*floatingActionButton: Stack(
-        alignment: AlignmentDirectional.bottomCenter,
-        children: [
-          DashboardNavigationRow.all(pc: _pageController),
-        ],
-      ),*/
     );
   }
 }
