@@ -30,9 +30,15 @@ class _DashboardBridgeState extends State<DashboardBridge> {
   void initializeMessageBubbles() {
     messageBubbles.clear();
     for (int i = 0; i < 20; ++i) {
-      String message = "Message: $i";
+      String message =
+          "Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message Message: $i";
+      bool isChatbotMessage = true;
+
+      if (i % 2 == 0) {
+        isChatbotMessage = false;
+      }
       MessageBubble mb =
-          MessageBubble(message: message, isChatbotMessage: true);
+          MessageBubble(message: message, isChatbotMessage: isChatbotMessage);
       messageBubbles.add(mb);
     }
     setState(() {
@@ -48,7 +54,7 @@ class _DashboardBridgeState extends State<DashboardBridge> {
   Widget build(BuildContext context) {
     initializeMessageBubbles();
     return Scaffold(
-      backgroundColor: Utility.tertiaryColor,
+      backgroundColor: Utility.secondaryColor,
       appBar: AppBar(
         actions: [
           DashboardNavigationRow.all(pc: _pageController),
@@ -75,15 +81,17 @@ class _DashboardBridgeState extends State<DashboardBridge> {
           ),
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Utility.tertiaryColor,
-              border: Border.all(color: Utility.primaryColor),
+            decoration: const BoxDecoration(
+              color: Utility.primaryColorTranslucent,
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 300,
+                  width: MediaQuery.of(context).size.width * 0.9,
                   child: TextField(
+                    cursorColor: Utility.primaryColor,
+                    cursorWidth: 1,
                     decoration: const InputDecoration(
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Utility.primaryColor),
@@ -102,7 +110,7 @@ class _DashboardBridgeState extends State<DashboardBridge> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
 

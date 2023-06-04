@@ -20,32 +20,46 @@ class MessageBubble extends StatefulWidget {
 
 class _MessageBubbleState extends State<MessageBubble> {
   TextEditingController bubbleTextTEC = TextEditingController();
+  MainAxisAlignment bubbleAlignment = MainAxisAlignment.center;
+  TextAlign bubbleTextAlignment = TextAlign.center;
+  Color bubbleColor = Colors.black;
+  Color bubbleTextColor = Colors.black;
+
+  void initializeMessageBubble() {
+    if (widget._isChatbotMessage) {
+      bubbleAlignment = MainAxisAlignment.start;
+      bubbleTextAlignment = TextAlign.start;
+      bubbleColor = Utility.tertiaryColor;
+      bubbleTextColor = Utility.primaryColor;
+    } else {
+      bubbleAlignment = MainAxisAlignment.end;
+      bubbleTextAlignment = TextAlign.end;
+      bubbleColor = Utility.primaryColorTranslucent;
+      bubbleTextColor = Utility.primaryColor;
+    }
+    bubbleTextTEC.text = widget._message;
+  }
 
   @override
   Widget build(BuildContext context) {
-    bubbleTextTEC.text = widget._message;
+    initializeMessageBubble();
     return Container(
+      width: MediaQuery.of(context).size.width * 0.75,
       decoration: BoxDecoration(
-        color: Utility.tertiaryColor,
-        border: Border.all(color: Utility.primaryColor),
+        color: bubbleColor,
       ),
       padding: const EdgeInsets.all(8),
       child: Row(
+        mainAxisAlignment: bubbleAlignment,
         children: [
-          if (widget._isChatbotMessage)
-            const Icon(
-              Icons.android,
-              color: Utility.secondaryColor,
-            ),
-          if (!widget._isChatbotMessage)
-            const Icon(
-              Icons.account_box,
-              color: Utility.secondaryColor,
-            ),
           SizedBox(
-            width: 300,
+            width: MediaQuery.of(context).size.width * 0.75,
             child: TextField(
+              style: TextStyle(color: bubbleTextColor),
+              textAlignVertical: TextAlignVertical.top,
+              textAlign: bubbleTextAlignment,
               decoration: const InputDecoration(
+                border: InputBorder.none,
                 enabled: false,
                 contentPadding: EdgeInsets.all(4),
               ),
