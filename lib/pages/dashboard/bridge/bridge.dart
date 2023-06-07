@@ -1,6 +1,8 @@
 import 'package:cao_prototype/models/university.dart';
 import 'package:cao_prototype/pages/dashboard/bridge/components/message_bubble.dart';
+import 'package:cao_prototype/support/chatbot.dart';
 import 'package:cao_prototype/support/queries.dart';
+import 'package:cao_prototype/support/session.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:cao_prototype/pages/dashboard/navigation.dart';
@@ -35,6 +37,7 @@ class _DashboardBridgeState extends State<DashboardBridge> {
   University selectedUniversity = University.none();
   // used to indicate the state of loading or fetching information from the server
   bool isLoading = false;
+  bool lockUserInterface = false;
 
   @override
   void initState() {
@@ -71,27 +74,54 @@ class _DashboardBridgeState extends State<DashboardBridge> {
 
       setState(() {
         universityDropdownButtons;
+        selectedUniversity = universityDropdownButtons[0].value;
         isLoading = false;
       });
     }
   }
 
   // allows the user to select the university that they want to ask questions about
-  void selectUniversity(University? university) {}
+  void selectUniversity(University? university) {
+    if (university == null) {
+      return;
+    }
+    selectedUniversity = university;
+  }
 
   // sends messages to the chatbot
-  void sendMessage() {
+  void sendMessage() async {
     // abort conditions
     if (chatbotQueryTEC.text.isEmpty) {
       return;
     }
 
-    // this is for UI testing only, proper request will be made to the server later
-    messageBubbles.add(
-      MessageBubble(message: chatbotQueryTEC.text, isChatbotMessage: false),
-    );
     setState(() {
-      messageBubbles;
+      lockUserInterface = true;
+    });
+
+    // send message to chatbot on the back end server
+    QueryResult qr = await ChatbotQueries.queryChatbot(Session.currentUser.id,
+        selectedUniversity.getId(), chatbotQueryTEC.text);
+
+    if (qr.result) {
+      // this is for UI testing only, proper request will be made to the server later
+      messageBubbles.add(
+        MessageBubble(message: chatbotQueryTEC.text, isChatbotMessage: false),
+      );
+      messageBubbles.add(
+        MessageBubble(message: qr.data["response"], isChatbotMessage: true),
+      );
+
+      setState(() {
+        messageBubbles;
+      });
+    } else {
+      Utility.displayAlertMessage(
+          context, "Failed to Send Message", "Please try again.");
+    }
+
+    setState(() {
+      lockUserInterface = false;
     });
   }
 
@@ -123,7 +153,7 @@ class _DashboardBridgeState extends State<DashboardBridge> {
               ),
             )
           : AbsorbPointer(
-              absorbing: isLoading,
+              absorbing: lockUserInterface,
               child: Column(
                 children: [
                   // dropdown university menu
