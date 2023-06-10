@@ -1,3 +1,4 @@
+import 'package:cao_prototype/pages/dashboard/bridge/bridge.dart';
 import 'package:cao_prototype/pages/home.dart';
 import 'package:cao_prototype/pages/image_test.dart';
 import 'package:flutter/material.dart';

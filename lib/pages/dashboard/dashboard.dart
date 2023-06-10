@@ -21,19 +21,91 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  PageController pageController = PageController();
+  void navigateToBridge() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const DashboardBridge(),
+      ),
+    );
+  }
+
+  void navigateToFeed() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const DashboardFeed(),
+      ),
+    );
+  }
+
+  void navigateToHub() {}
+  void navigateToMap() {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(
-        controller: pageController,
-        scrollDirection: Axis.horizontal,
+      backgroundColor: Utility.tertiaryColor,
+      appBar: AppBar(
+        backgroundColor: Utility.primaryColor,
+        title: const Text(
+          "Dashboard",
+          style: TextStyle(color: Utility.secondaryColor),
+        ),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          DashboardBridge(pc: pageController),
-          DashboardFeed(pc: pageController),
-          DashboardHub(pc: pageController),
-          DashboardMap(pc: pageController),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                iconSize: 100,
+                padding: const EdgeInsets.all(16),
+                color: Utility.tertiaryColor,
+                onPressed: navigateToBridge,
+                icon: const Icon(
+                  Icons.question_answer,
+                  color: Utility.primaryColor,
+                ),
+              ),
+              IconButton(
+                iconSize: 100,
+                padding: const EdgeInsets.all(16),
+                color: Utility.tertiaryColor,
+                onPressed: navigateToFeed,
+                icon: const Icon(
+                  Icons.feed,
+                  color: Utility.primaryColor,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                iconSize: 100,
+                padding: const EdgeInsets.all(16),
+                color: Utility.tertiaryColor,
+                onPressed: navigateToMap,
+                icon: const Icon(
+                  Icons.map,
+                  color: Utility.primaryColor,
+                ),
+              ),
+              IconButton(
+                iconSize: 100,
+                padding: const EdgeInsets.all(16),
+                color: Utility.tertiaryColor,
+                onPressed: navigateToHub,
+                icon: const Icon(
+                  Icons.hub,
+                  color: Utility.primaryColor,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

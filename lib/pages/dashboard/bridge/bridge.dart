@@ -8,24 +8,13 @@ import 'package:cao_prototype/support/utility.dart';
 import 'package:cao_prototype/pages/dashboard/navigation.dart';
 
 class DashboardBridge extends StatefulWidget {
-  PageController _pageController = PageController();
-
-  DashboardBridge({Key? key, required PageController pc}) : super(key: key) {
-    _pageController = pc;
-  }
+  const DashboardBridge({super.key});
 
   @override
-  State<DashboardBridge> createState() =>
-      _DashboardBridgeState(_pageController);
+  State<DashboardBridge> createState() => _DashboardBridgeState();
 }
 
 class _DashboardBridgeState extends State<DashboardBridge> {
-  PageController _pageController = PageController();
-
-  _DashboardBridgeState(PageController pc) {
-    _pageController = pc;
-  }
-
   // this TEC is associated to the text input box where the user enters their chatbot question
   TextEditingController chatbotQueryTEC = TextEditingController();
   // holds a list of message bubble UI components
@@ -113,6 +102,7 @@ class _DashboardBridgeState extends State<DashboardBridge> {
       );
 
       setState(() {
+        chatbotQueryTEC.text = "";
         messageBubbles;
       });
     } else {
@@ -130,9 +120,6 @@ class _DashboardBridgeState extends State<DashboardBridge> {
     return Scaffold(
       backgroundColor: Utility.secondaryColor,
       appBar: AppBar(
-        actions: [
-          DashboardNavigationRow.all(pc: _pageController),
-        ],
         title: const Text(
           "Bridge",
           style: TextStyle(
@@ -144,7 +131,7 @@ class _DashboardBridgeState extends State<DashboardBridge> {
       ),
       body: isLoading
           ? Container(
-              color: Utility.tertiaryColor,
+              color: Utility.primaryColor,
               child: const Center(
                 child: Text(
                   "Fetching Data. Please wait.",
@@ -160,7 +147,7 @@ class _DashboardBridgeState extends State<DashboardBridge> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: const BoxDecoration(
-                      color: Utility.primaryColorTranslucent,
+                      color: Utility.tertiaryColor,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -170,7 +157,7 @@ class _DashboardBridgeState extends State<DashboardBridge> {
                             backgroundColor: MaterialStateColor.resolveWith(
                                 (states) => Utility.tertiaryColor),
                           ),
-                          width: MediaQuery.of(context).size.width * 0.25,
+                          width: MediaQuery.of(context).size.width * 0.5,
                           leadingIcon: const Icon(
                             Icons.school,
                             color: Utility.primaryColor,
@@ -200,13 +187,13 @@ class _DashboardBridgeState extends State<DashboardBridge> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: const BoxDecoration(
-                      color: Utility.primaryColorTranslucent,
+                      color: Utility.tertiaryColor,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.9,
+                          width: MediaQuery.of(context).size.width * 0.7,
                           child: TextField(
                             cursorColor: Utility.primaryColor,
                             cursorWidth: 1,

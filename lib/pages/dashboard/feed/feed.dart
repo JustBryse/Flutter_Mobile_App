@@ -13,14 +13,10 @@ import 'package:cao_prototype/pages/dashboard/navigation.dart';
 import 'package:cao_prototype/models/thread.dart';
 
 class DashboardFeed extends StatefulWidget {
-  PageController _pageController = PageController();
-
-  DashboardFeed({Key? key, required PageController pc}) : super(key: key) {
-    _pageController = pc;
-  }
+  const DashboardFeed({super.key});
 
   @override
-  State<DashboardFeed> createState() => _DashboardFeedState(_pageController);
+  State<DashboardFeed> createState() => _DashboardFeedState();
 }
 
 class _DashboardFeedState extends State<DashboardFeed> {
@@ -28,13 +24,7 @@ class _DashboardFeedState extends State<DashboardFeed> {
 
   List<ThreadWidget> threadWidgets = List.empty(growable: true);
 
-  PageController _pageController = PageController();
-
   bool isLoading = false;
-
-  _DashboardFeedState(PageController pc) {
-    _pageController = pc;
-  }
 
   @override
   void initState() {
@@ -168,12 +158,6 @@ class _DashboardFeedState extends State<DashboardFeed> {
                 return threadWidgets[index];
               },
             ),
-      floatingActionButton: Stack(
-        alignment: AlignmentDirectional.bottomCenter,
-        children: [
-          DashboardNavigationRow.all(pc: _pageController),
-        ],
-      ),
     );
   }
 }

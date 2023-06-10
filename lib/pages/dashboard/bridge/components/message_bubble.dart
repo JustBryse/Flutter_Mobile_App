@@ -33,7 +33,7 @@ class _MessageBubbleState extends State<MessageBubble> {
     } else {
       bubbleAlignment = MainAxisAlignment.end;
       bubbleTextAlignment = TextAlign.end;
-      bubbleColor = Utility.primaryColorTranslucent;
+      bubbleColor = Utility.tertiaryColor;
       bubbleTextColor = Utility.secondaryColor;
     }
   }
