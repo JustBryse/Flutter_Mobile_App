@@ -1,5 +1,7 @@
+import 'package:cao_prototype/models/thread_map_marker.dart';
 import 'package:cao_prototype/models/thread_media.dart';
 import 'package:cao_prototype/models/thread_tag.dart';
+import 'package:cao_prototype/pages/dashboard/feed/create_thread/create_map_marker.dart';
 import 'package:cao_prototype/pages/dashboard/feed/create_thread/models/thread_media_file.dart';
 import 'package:cao_prototype/pages/dashboard/feed/create_thread/components/thread_tag.dart';
 import 'package:cao_prototype/pages/dashboard/feed/create_thread/components/thread_media.dart';
@@ -10,6 +12,7 @@ import 'package:cao_prototype/support/utility.dart';
 import 'package:cao_prototype/models/university.dart';
 import 'package:cao_prototype/models/thread.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class ThreadCreationPage extends StatefulWidget {
   List<ThreadTagWidget> tagWidgets = List.empty(growable: true);
@@ -31,6 +34,10 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
   // variables that are loaded on start
   List<DropdownMenuItem<University>> universityDropDownItems =
       List.empty(growable: true);
+  // used to indicate whether the user has chosen a gps coordinate for this thread
+  bool isThreadMapMarkerChosen = false;
+  // this is used to contain the map marker info for the marker that the user can place
+  ThreadMapMarker threadMapMarker = ThreadMapMarker.none();
 
   bool isLoading = false;
 
@@ -226,6 +233,37 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
     });
   }
 
+  // Navigates to the map marker creation page. Expects a response with details of whether a map marker was created and map marker information.
+  void navigateToMapMarkerCreationPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MapMarkerCreationPage(university: selectedUniversity),
+      ),
+    ).then(
+      (result) => {
+        handleMapMarkerCreationResult(result),
+      },
+    );
+  }
+
+  // handles the response from the thread map marker creation page, specifically the marker coordinates
+  void handleMapMarkerCreationResult(Map<String, dynamic> response) {
+    setState(() {
+      isThreadMapMarkerChosen = response["result"];
+    });
+
+    // if the user placed a marker then save the coordinates, otherwise clear the threadMapMarker object
+    if (isThreadMapMarkerChosen == true) {
+      threadMapMarker = ThreadMapMarker.coordinates(
+        response["latitude"],
+        response["longitude"],
+      );
+    } else {
+      threadMapMarker = ThreadMapMarker.none();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -234,16 +272,17 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
         title: const Text(
           "New Thread",
           style: TextStyle(
-            fontSize: Utility.titleFontSize,
             color: Utility.secondaryColor,
           ),
         ),
         backgroundColor: Utility.primaryColor,
         actions: [
+          /*
           IconButton(
             onPressed: attachMediaFiles,
             icon: const Icon(Icons.attach_file),
           ),
+          */
         ],
       ),
       body: isLoading
@@ -257,10 +296,62 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
               ),
             )
           : Container(
-              padding: const EdgeInsets.all(60),
+              padding: const EdgeInsets.all(8),
               alignment: Alignment.center,
               child: ListView(
                 children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: DropdownButton(
+                            style: const TextStyle(
+                                color: Utility.primaryColor,
+                                overflow: TextOverflow.ellipsis),
+                            icon: const Icon(
+                              Icons.arrow_drop_down,
+                              color: Utility.primaryColor,
+                            ),
+                            iconSize: 1,
+                            onChanged: chooseUniversity,
+                            dropdownColor: Utility.tertiaryColor,
+                            underline: Container(
+                              height: 0,
+                            ),
+                            value: selectedUniversity,
+                            items: universityDropDownItems,
+                          ),
+                        ),
+                        if (isThreadMapMarkerChosen)
+                          Container(
+                            color: Utility.tertiaryColor,
+                            height: 50,
+                            width: 50,
+                            child: const Icon(
+                              Icons.place,
+                              color: Utility.primaryColor,
+                            ),
+                          ),
+                        Container(
+                          color: Utility.primaryColor,
+                          height: 50,
+                          width: 50,
+                          child: IconButton(
+                            onPressed: navigateToMapMarkerCreationPage,
+                            icon: const Icon(
+                              Icons.add_location,
+                              color: Utility.secondaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  /*
                   if (attachedFiles.isNotEmpty)
                     Container(
                       alignment: Alignment.center,
@@ -275,20 +366,8 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
                         ],
                       ),
                     ),
-                  if (widget.tagWidgets.isNotEmpty)
-                    Container(
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(8),
-                      height: 75,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          Row(
-                            children: widget.tagWidgets,
-                          ),
-                        ],
-                      ),
-                    ),
+                  */
+
                   Container(
                     padding: const EdgeInsets.all(8),
                     child: Row(
@@ -327,21 +406,20 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
                           ),
                         ]),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    child: DropdownButton(
-                      style: const TextStyle(color: Utility.primaryColor),
-                      iconSize: 0,
-                      onChanged: chooseUniversity,
-                      dropdownColor: Utility.tertiaryColor,
-                      underline: Container(
-                        color: Utility.primaryColor,
-                        height: 0.5,
+                  if (widget.tagWidgets.isNotEmpty)
+                    Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(8),
+                      height: 75,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          Row(
+                            children: widget.tagWidgets,
+                          ),
+                        ],
                       ),
-                      value: selectedUniversity,
-                      items: universityDropDownItems,
                     ),
-                  ),
                   Container(
                     padding: const EdgeInsets.all(8),
                     child: TextField(
@@ -396,25 +474,27 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
                       maxLines: 10,
                     ),
                   ),
-                  Container(
+                  Padding(
                     padding: const EdgeInsets.all(8),
-                    height: 50,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      color: Utility.primaryColor,
-                      border: Border.all(
+                    child: Container(
+                      height: 50,
+                      width: 75,
+                      decoration: BoxDecoration(
                         color: Utility.primaryColor,
-                        width: 0.5, //width of border
+                        border: Border.all(
+                          color: Utility.primaryColor,
+                          width: 0.5, //width of border
+                        ),
+                        borderRadius: BorderRadius.circular(3),
                       ),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: AbsorbPointer(
-                      absorbing: isLoading,
-                      child: TextButton(
-                        onPressed: createThread,
-                        child: const Text(
-                          "Create",
-                          style: TextStyle(color: Utility.secondaryColor),
+                      child: AbsorbPointer(
+                        absorbing: isLoading,
+                        child: TextButton(
+                          onPressed: createThread,
+                          child: const Text(
+                            "Create",
+                            style: TextStyle(color: Utility.secondaryColor),
+                          ),
                         ),
                       ),
                     ),
