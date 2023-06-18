@@ -300,6 +300,13 @@ class _ThreadWidgetState extends State<ThreadWidget> {
                   ),
                 ),
                 upVoteButton,
+                IconButton(
+                  icon: const Icon(
+                    Icons.star_border,
+                    color: Utility.primaryColor,
+                  ),
+                  onPressed: saveThread,
+                ),
                 if (widget.feedMode)
                   IconButton(
                     icon: const Icon(
@@ -316,20 +323,14 @@ class _ThreadWidgetState extends State<ThreadWidget> {
                     ),
                     onPressed: showCommentInput,
                   ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.fmd_good,
-                    color: Utility.primaryColor,
+                if (widget.thread.hasThreadMapMarker)
+                  IconButton(
+                    icon: const Icon(
+                      Icons.fmd_good,
+                      color: Utility.primaryColor,
+                    ),
+                    onPressed: viewThreadLocation,
                   ),
-                  onPressed: viewThreadLocation,
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.save_alt_rounded,
-                    color: Utility.primaryColor,
-                  ),
-                  onPressed: saveThread,
-                ),
               ]),
               Row(
                 children: [

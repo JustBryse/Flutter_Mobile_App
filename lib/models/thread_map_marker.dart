@@ -49,8 +49,8 @@ class ThreadMapMarker {
       "id": _id,
       "marker_id": _markerId,
       "icon": _icon,
-      "latitude": _latitude,
-      "longitude": _longitude,
+      "latitude": _latitude.toString(),
+      "longitude": _longitude.toString(),
       "description": _decription,
       "thread_id": _threadId
     };
