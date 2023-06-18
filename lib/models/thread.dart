@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:cao_prototype/models/thread_map_marker.dart';
 import 'package:cao_prototype/models/thread_media.dart';
 import 'package:cao_prototype/models/thread_tag.dart';
 import 'package:cao_prototype/models/thread_vote.dart';
@@ -22,6 +23,7 @@ class Thread {
   ThreadVote _threadVote = ThreadVote.none();
   List<ThreadTag> _tags = List.empty(growable: true);
   List<ThreadMedia> _threadMediaList = List.empty(growable: true);
+  ThreadMapMarker _threadMapMarker = ThreadMapMarker.none();
 
   // read-only getters
   int get id => _id;
@@ -38,6 +40,8 @@ class Thread {
       -1; // used to record whether the current user has cast a vote on this thread
   List<ThreadTag> get tags => _tags;
   List<ThreadMedia> get threadMediaList => _threadMediaList;
+  ThreadMapMarker get threadMapMarker => _threadMapMarker;
+  bool get hasThreadMapMarker => threadMapMarker.id != -1;
 
   @override
   String toString() {
@@ -62,7 +66,8 @@ class Thread {
       "userAlias": userAlias,
       "threadVote": threadVote.toString(),
       "media": mediaNames.toString(),
-      "tags": tagNames.toString()
+      "tags": tagNames.toString(),
+      "threadMapMarker": threadMapMarker.toString()
     }.toString();
   }
 
@@ -77,7 +82,8 @@ class Thread {
       String userAlias,
       ThreadVote threadVote,
       List<ThreadTag> tags,
-      List<ThreadMedia> threadMediaList) {
+      List<ThreadMedia> threadMediaList,
+      ThreadMapMarker threadMapMarker) {
     _id = id;
     _title = title;
     _content = content;
@@ -89,17 +95,25 @@ class Thread {
     _threadVote = threadVote;
     _tags = tags;
     _threadMediaList = threadMediaList;
+    _threadMapMarker = threadMapMarker;
   }
 
   // used when creating a new thread
-  Thread.create(String title, String content, int universityId, int userId,
-      List<ThreadTag> tags, List<ThreadMedia> threadMediaList) {
+  Thread.create(
+      String title,
+      String content,
+      int universityId,
+      int userId,
+      List<ThreadTag> tags,
+      List<ThreadMedia> threadMediaList,
+      ThreadMapMarker threadMapMarker) {
     _title = title;
     _content = content;
     _universityId = universityId;
     _userId = userId;
     _tags = tags;
     _threadMediaList = threadMediaList;
+    _threadMapMarker = threadMapMarker;
   }
 
   Thread.empty();
@@ -149,7 +163,8 @@ class Thread {
       "body": thread.content,
       "tags": jsonEncode(tagNames),
       "university_id": thread.universityId.toString(),
-      "user_id": thread.userId.toString()
+      "user_id": thread.userId.toString(),
+      "thread_marker": jsonEncode(thread.threadMapMarker.toMap())
     };
 
     try {
@@ -169,92 +184,109 @@ class Thread {
   // Requests a list of threads to be served by the back-end server. The server decides which threads to respond with.
   static Future<QueryResult> getThreads() async {
     QueryResult qr = QueryResult();
-    try {
-      Map<String, String> arguments = {
-        "user_id": Session.currentUser.id.toString()
-      };
-      var response = await Server.submitGetRequest(arguments, "fetch/threads");
+    //try {
+    Map<String, String> arguments = {
+      "user_id": Session.currentUser.id.toString()
+    };
+    var response = await Server.submitGetRequest(arguments, "fetch/threads");
 
-      Map<String, dynamic> fields = jsonDecode(response);
+    Map<String, dynamic> fields = jsonDecode(response);
 
-      qr.result = fields["result"];
+    //print(fields);
 
-      if (qr.result == false) {
-        throw Exception();
-      }
+    qr.result = fields["result"];
 
-      List<Thread> threads = List.empty(growable: true);
-
-      // load data into thread models
-
-      for (var threadField in fields["threads"]) {
-        // collect thread tags
-
-        print(threadField);
-        print("\n");
-
-        List<ThreadTag> tags = List.empty(growable: true);
-
-        for (var tagField in threadField["tags"]) {
-          ThreadTag tag = ThreadTag.all(
-              tagField["id"], tagField["name"], tagField["thread_id"]);
-          tags.add(tag);
-        }
-
-        // collect thread media
-
-        List<ThreadMedia> threadMediaList = List.empty(growable: true);
-
-        for (var mediaField in threadField["media"]) {
-          ThreadMedia threadMedia = ThreadMedia.fetch(
-              mediaField["id"],
-              mediaField["name"],
-              mediaField["base64_data"],
-              mediaField["thread_id"]);
-          threadMediaList.add(threadMedia);
-        }
-
-        // get the thread vote record
-
-        ThreadVote threadVote = ThreadVote.none();
-
-        // check if the current thread has a thread vote record for the current session user
-        if (threadField["requester_vote_record"]["id"] != null) {
-          bool upVoteState =
-              threadField["requester_vote_record"]["up_vote_state"] == 1;
-          bool downVoteState =
-              threadField["requester_vote_record"]["down_vote_state"] == 1;
-
-          threadVote = ThreadVote.fetch(
-              threadField["requester_vote_record"]["id"],
-              threadField["requester_vote_record"]["thread_id"],
-              threadField["requester_vote_record"]["user_id"],
-              upVoteState,
-              downVoteState);
-        }
-
-        // finally create the thread object and add it to the thread list
-
-        Thread thread = Thread.all(
-            threadField["id"],
-            threadField["title"],
-            threadField["content"],
-            threadField["up_votes"],
-            threadField["down_votes"],
-            threadField["university_id"],
-            threadField["user_id"],
-            threadField["user_alias"],
-            threadVote,
-            tags,
-            threadMediaList);
-
-        threads.add(thread);
-      }
-
-      qr.data = threads;
-    } catch (e) {
-      print("Error in Interest.getInterests(): $e");
+    if (qr.result == false) {
+      throw Exception();
     }
+
+    List<Thread> threads = List.empty(growable: true);
+
+    // load data into thread models
+
+    for (var threadField in fields["threads"]) {
+      // collect thread tags
+
+      List<ThreadTag> tags = List.empty(growable: true);
+
+      for (var tagField in threadField["tags"]) {
+        ThreadTag tag = ThreadTag.all(
+            tagField["id"], tagField["name"], tagField["thread_id"]);
+        tags.add(tag);
+      }
+
+      // collect thread media
+
+      List<ThreadMedia> threadMediaList = List.empty(growable: true);
+
+      for (var mediaField in threadField["media"]) {
+        ThreadMedia threadMedia = ThreadMedia.fetch(
+            mediaField["id"],
+            mediaField["name"],
+            mediaField["base64_data"],
+            mediaField["thread_id"]);
+        threadMediaList.add(threadMedia);
+      }
+
+      // get the thread vote record
+
+      ThreadVote threadVote = ThreadVote.none();
+
+      // check if the current thread has a thread vote record for the current session user
+      if (threadField["requester_vote_record"]["id"] != null) {
+        bool upVoteState =
+            threadField["requester_vote_record"]["up_vote_state"] == 1;
+        bool downVoteState =
+            threadField["requester_vote_record"]["down_vote_state"] == 1;
+
+        threadVote = ThreadVote.fetch(
+            threadField["requester_vote_record"]["id"],
+            threadField["requester_vote_record"]["thread_id"],
+            threadField["requester_vote_record"]["user_id"],
+            upVoteState,
+            downVoteState);
+      }
+
+      // get the thread map marker if it exists
+
+      ThreadMapMarker threadMapMarker = ThreadMapMarker.none();
+
+      if (threadField["thread_marker"]["id"] != null) {
+        var markerData = threadField["thread_marker"];
+
+        threadMapMarker = ThreadMapMarker.fetch(
+            markerData["id"],
+            markerData["marker_id"],
+            markerData["icon"],
+            double.parse(markerData["latitude"].toString()),
+            double.parse(markerData["longitude"].toString()),
+            markerData["description"],
+            markerData["thread_id"]);
+      }
+
+      // finally create the thread object and add it to the thread list
+
+      Thread thread = Thread.all(
+          threadField["id"],
+          threadField["title"],
+          threadField["content"],
+          threadField["up_votes"],
+          threadField["down_votes"],
+          threadField["university_id"],
+          threadField["user_id"],
+          threadField["user_alias"],
+          threadVote,
+          tags,
+          threadMediaList,
+          threadMapMarker);
+
+      threads.add(thread);
+    }
+
+    qr.data = threads;
+    // } catch (e) {
+    //   print("Error in Interest.getInterests(): $e");
+    // }
 
     return qr;
   }

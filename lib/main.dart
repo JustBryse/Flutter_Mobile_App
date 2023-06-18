@@ -12,7 +12,7 @@ import 'package:cao_prototype/pages/server_test.dart';
 void main() {
   runApp(
     MaterialApp(
-      home: ThreadCreationPage(),
+      home: DashboardPage(),
     ),
   );
 }

@@ -131,10 +131,30 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
       threadMedia.add(media);
     }
 
+    // create thread map marker object
+
+    ThreadMapMarker newThreadMapMarker = ThreadMapMarker.none();
+
+    if (isThreadMapMarkerChosen) {
+      newThreadMapMarker = ThreadMapMarker.create(
+        titleTEC.text,
+        "default",
+        threadMapMarker.latitude,
+        threadMapMarker.longitude,
+        "description",
+      );
+    }
+
     // create the thread object
 
-    Thread thread = Thread.create(titleTEC.text, bodyTEC.text,
-        selectedUniversity.getId(), Session.currentUser.id, tags, threadMedia);
+    Thread thread = Thread.create(
+        titleTEC.text,
+        bodyTEC.text,
+        selectedUniversity.getId(),
+        Session.currentUser.id,
+        tags,
+        threadMedia,
+        newThreadMapMarker);
 
     // send request
     QueryResult qr = await Thread.createThread(thread);
