@@ -5,7 +5,6 @@ import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/session.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
-import 'package:cao_prototype/pages/dashboard/navigation.dart';
 
 class DashboardBridge extends StatefulWidget {
   const DashboardBridge({super.key});

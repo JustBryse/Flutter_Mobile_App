@@ -9,7 +9,6 @@ import 'package:cao_prototype/pages/dashboard/feed/thread_page/thread_page.dart'
 import 'package:cao_prototype/support/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
-import 'package:cao_prototype/pages/dashboard/navigation.dart';
 import 'package:cao_prototype/models/thread.dart';
 
 class DashboardFeed extends StatefulWidget {

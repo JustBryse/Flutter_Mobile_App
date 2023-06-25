@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
-import 'package:cao_prototype/pages/dashboard/navigation.dart';
 
 class DashboardHub extends StatefulWidget {
   PageController _pageController = PageController();
@@ -34,12 +33,6 @@ class _DashboardHubState extends State<DashboardHub> {
       ),
       body: ListView(
         children: [],
-      ),
-      floatingActionButton: Stack(
-        alignment: AlignmentDirectional.bottomCenter,
-        children: [
-          DashboardNavigationRow.all(pc: _pageController),
-        ],
       ),
     );
   }
