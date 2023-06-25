@@ -17,10 +17,12 @@ class ThreadWidget extends StatefulWidget {
   double _width = 0;
   // controls whether to configure the UI for the feed page or for the thread page
   bool _feedMode = true;
+  bool _enableMapButton = true;
   Thread get thread => _thread;
   // width refers to the horizontal length of media in the thread UI
   double get width => _width;
   bool get feedMode => _feedMode;
+  bool get enableMapButton => _enableMapButton;
   // callback function to the feed view which is activated when the user wants to open the thread
   void Function(Thread) _openThread = (t) {};
   Future<bool> Function(ThreadComment) _createComment = (p0) async {
@@ -44,11 +46,13 @@ class ThreadWidget extends StatefulWidget {
     required Thread thread,
     required Future<bool> Function(ThreadComment) createComment,
     required double width,
+    bool enableMapButton = true,
   }) : super(key: key) {
     _thread = thread;
     _createComment = createComment;
     _width = width;
     _feedMode = false;
+    _enableMapButton = enableMapButton;
   }
 
   @override
@@ -323,7 +327,7 @@ class _ThreadWidgetState extends State<ThreadWidget> {
                     ),
                     onPressed: showCommentInput,
                   ),
-                if (widget.thread.hasThreadMapMarker)
+                if (widget.thread.hasThreadMapMarker && widget.enableMapButton)
                   IconButton(
                     icon: const Icon(
                       Icons.fmd_good,

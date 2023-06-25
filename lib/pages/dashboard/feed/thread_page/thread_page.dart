@@ -13,13 +13,21 @@ import 'package:flutter/src/widgets/framework.dart';
 class ThreadPage extends StatefulWidget {
   Thread _thread = Thread.empty();
   double _width = -1;
+  bool _enableMapButton =
+      true; // if true and the associated thread has a gps coordinate, then the map button will be visible
   Thread get thread => _thread;
   double get width => _width;
+  bool get enableMapButton => _enableMapButton;
 
-  ThreadPage({Key? key, required Thread thread, required double width})
+  ThreadPage(
+      {Key? key,
+      required Thread thread,
+      required double width,
+      bool enableMapButton = true})
       : super(key: key) {
     _thread = thread;
     _width = width;
+    _enableMapButton = enableMapButton;
   }
 
   @override
@@ -162,6 +170,7 @@ class _ThreadPageState extends State<ThreadPage> {
                   thread: widget.thread,
                   createComment: createComment,
                   width: widget.width,
+                  enableMapButton: widget.enableMapButton,
                 );
               } else {
                 // conditionally return the type of ThreadCommentWidget according to whether it has a parent comment

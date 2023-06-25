@@ -9,16 +9,19 @@ class MarkerWindow extends StatefulWidget {
   double _width = 0;
   double _height = 0;
   ThreadMapMarker _threadMapMarker = ThreadMapMarker.none();
+  Function(bool) _toggleMarkerWindow = (b) {};
 
   MarkerWindow({
     Key? key,
     required ThreadMapMarker threadMapMarker,
     required double width,
     required double height,
+    required Function(bool) toggleMarkerWindow,
   }) : super(key: key) {
     _threadMapMarker = threadMapMarker;
     _width = width;
     _height = height;
+    _toggleMarkerWindow = toggleMarkerWindow;
   }
 
   @override
@@ -27,7 +30,9 @@ class MarkerWindow extends StatefulWidget {
 
 class _MarkerWindowState extends State<MarkerWindow> {
   // callback function to map page to disable this window
-  void closeMarkerWindow() {}
+  void hideMarkerWindow() {
+    widget._toggleMarkerWindow(false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +89,7 @@ class _MarkerWindowState extends State<MarkerWindow> {
                         Icons.close,
                         color: Utility.tertiaryColor,
                       ),
-                      onPressed: closeMarkerWindow,
+                      onPressed: hideMarkerWindow,
                     ),
                   ),
                 ),

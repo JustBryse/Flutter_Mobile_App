@@ -288,4 +288,104 @@ class Thread {
 
     return qr;
   }
+
+  // fetches a single thread from the back end
+  static Future<QueryResult> getThread(int threadId) async {
+    QueryResult qr = QueryResult();
+    try {
+      Map<String, String> arguments = {
+        "thread_id": threadId.toString(),
+        "user_id": Session.currentUser.id.toString(),
+      };
+
+      var response = await Server.submitGetRequest(arguments, "fetch/thread");
+      var fields = jsonDecode(response);
+      qr.result = fields["result"];
+      qr.message = fields["message"];
+      if (qr.result == false) {
+        return qr;
+      }
+
+      var threadField = fields["thread"];
+
+      List<ThreadTag> tags = List.empty(growable: true);
+
+      for (var tagField in threadField["tags"]) {
+        ThreadTag tag = ThreadTag.all(
+            tagField["id"], tagField["name"], tagField["thread_id"]);
+        tags.add(tag);
+      }
+
+      // collect thread media
+
+      List<ThreadMedia> threadMediaList = List.empty(growable: true);
+
+      for (var mediaField in threadField["media"]) {
+        ThreadMedia threadMedia = ThreadMedia.fetch(
+            mediaField["id"],
+            mediaField["name"],
+            mediaField["base64_data"],
+            mediaField["thread_id"]);
+        threadMediaList.add(threadMedia);
+      }
+
+      // get the thread vote record
+
+      ThreadVote threadVote = ThreadVote.none();
+
+      // check if the current thread has a thread vote record for the current session user
+      if (threadField["requester_vote_record"]["id"] != null) {
+        bool upVoteState =
+            threadField["requester_vote_record"]["up_vote_state"] == 1;
+        bool downVoteState =
+            threadField["requester_vote_record"]["down_vote_state"] == 1;
+
+        threadVote = ThreadVote.fetch(
+            threadField["requester_vote_record"]["id"],
+            threadField["requester_vote_record"]["thread_id"],
+            threadField["requester_vote_record"]["user_id"],
+            upVoteState,
+            downVoteState);
+      }
+
+      // get the thread map marker if it exists
+
+      ThreadMapMarker threadMapMarker = ThreadMapMarker.none();
+
+      if (threadField["thread_marker"]["id"] != null) {
+        var markerData = threadField["thread_marker"];
+
+        threadMapMarker = ThreadMapMarker.fetch(
+            markerData["id"],
+            markerData["marker_id"],
+            markerData["icon"],
+            double.parse(markerData["latitude"].toString()),
+            double.parse(markerData["longitude"].toString()),
+            markerData["description"],
+            markerData["thread_id"]);
+      }
+
+      // finally create the thread object
+
+      Thread thread = Thread.all(
+          threadField["id"],
+          threadField["title"],
+          threadField["content"],
+          threadField["up_votes"],
+          threadField["down_votes"],
+          threadField["university_id"],
+          threadField["user_id"],
+          threadField["user_alias"],
+          threadVote,
+          tags,
+          threadMediaList,
+          threadMapMarker);
+
+      qr.data = thread;
+    } catch (e) {
+      qr.result = false;
+      qr.message = "Erorr in Thread.getThread():$e";
+    }
+    return qr;
+  }
 }

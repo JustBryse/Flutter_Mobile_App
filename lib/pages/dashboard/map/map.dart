@@ -141,7 +141,8 @@ class _DashboardMapState extends State<DashboardMap> {
     for (ThreadMapMarker tmm in threadMarkers) {
       MarkerId markerId = MarkerId(tmm.markerId);
       Marker marker = Marker(
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        infoWindow: InfoWindow(title: tmm.markerId),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         markerId: markerId,
         position: LatLng(tmm.latitude, tmm.longitude),
         onTap: () {
@@ -162,8 +163,6 @@ class _DashboardMapState extends State<DashboardMap> {
     setState(() {
       isLoading = false;
     });
-
-    print("length of tmm = " + threadMapMarkers.length.toString());
   }
 
   void selectUniversity(University? university) {
@@ -173,6 +172,18 @@ class _DashboardMapState extends State<DashboardMap> {
 
     setState(() {
       selectedUniversity = university;
+    });
+  }
+
+  void toggleMarkerInterface(bool enabled) {
+    setState(() {
+      enableMarkerInterface = enabled;
+    });
+  }
+
+  void toggleMarkerWindow(bool enabled) {
+    setState(() {
+      enableMarkerWindow = enabled;
     });
   }
 
@@ -257,6 +268,8 @@ class _DashboardMapState extends State<DashboardMap> {
                     visible: enableMarkerInterface,
                     child: MarkerInterface(
                       threadMapMarker: selectedThreadMapMarker,
+                      toggleMarkerInterface: toggleMarkerInterface,
+                      toggleMarkerWindow: toggleMarkerWindow,
                     ),
                   ),
                   // represents the information window that can be made to appear by pressing the marker data button of the marker interface
@@ -264,6 +277,7 @@ class _DashboardMapState extends State<DashboardMap> {
                     visible: enableMarkerWindow,
                     child: MarkerWindow(
                       threadMapMarker: selectedThreadMapMarker,
+                      toggleMarkerWindow: toggleMarkerWindow,
                       width: MediaQuery.of(context).size.width * 0.5,
                       height: MediaQuery.of(context).size.height * 0.25,
                     ),
