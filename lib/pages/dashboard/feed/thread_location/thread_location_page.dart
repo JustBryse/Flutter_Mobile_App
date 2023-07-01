@@ -57,7 +57,7 @@ class _ThreadLocationPageState extends State<ThreadLocationPage> {
                 widget.threadMapMarker.latitude,
                 widget.threadMapMarker.longitude,
               ),
-              zoom: 17.5,
+              zoom: 17,
             ),
             onMapCreated: (GoogleMapController controller) {
               mapController.complete(controller);
