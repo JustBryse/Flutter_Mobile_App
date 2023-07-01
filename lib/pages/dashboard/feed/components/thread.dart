@@ -4,6 +4,7 @@ import 'package:cao_prototype/models/thread.dart';
 import 'package:cao_prototype/models/thread_comment.dart';
 import 'package:cao_prototype/models/thread_tag.dart';
 import 'package:cao_prototype/pages/dashboard/feed/components/thread_tag.dart';
+import 'package:cao_prototype/pages/dashboard/feed/thread_location/thread_location_page.dart';
 import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/session.dart';
 import 'package:cao_prototype/support/utility.dart';
@@ -177,7 +178,15 @@ class _ThreadWidgetState extends State<ThreadWidget> {
   }
 
   void saveThread() {}
-  void viewThreadLocation() {}
+  void viewThreadLocation() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            ThreadLocationPage(threadMapMarker: widget.thread.threadMapMarker),
+      ),
+    );
+  }
 
   // pass on the ThreadComment instance to the thread page and it will handle the rest
   void createComment() async {

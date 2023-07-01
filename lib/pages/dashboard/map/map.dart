@@ -18,7 +18,7 @@ class DashboardMap extends StatefulWidget {
 }
 
 class _DashboardMapState extends State<DashboardMap> {
-  Completer<GoogleMapController> gmController =
+  Completer<GoogleMapController> mapController =
       Completer<GoogleMapController>();
   String mapStyle = "";
 
@@ -173,6 +173,13 @@ class _DashboardMapState extends State<DashboardMap> {
     setState(() {
       selectedUniversity = university;
     });
+
+    setCameraPosition(LatLng(university.latitude, university.longitude));
+  }
+
+  void setCameraPosition(LatLng pos) async {
+    GoogleMapController gmc = await mapController.future;
+    gmc.animateCamera(CameraUpdate.newLatLng(pos));
   }
 
   void toggleMarkerInterface(bool enabled) {
@@ -222,7 +229,7 @@ class _DashboardMapState extends State<DashboardMap> {
                       zoom: 15,
                     ),
                     onMapCreated: (GoogleMapController controller) {
-                      gmController.complete(controller);
+                      mapController.complete(controller);
                       controller.setMapStyle(mapStyle);
                     },
                     markers: markers.values.toSet(),

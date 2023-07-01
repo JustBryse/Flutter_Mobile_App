@@ -149,7 +149,8 @@ class Thread {
   }
 
   // creates a thread in the database and Amazon S3 storage
-  static Future<QueryResult> createThread(Thread thread) async {
+  static Future<QueryResult> createThread(
+      Thread thread, bool hasThreadMapMarker) async {
     QueryResult qr = QueryResult();
 
     List<String> tagNames = List.empty(growable: true);
@@ -164,7 +165,8 @@ class Thread {
       "tags": jsonEncode(tagNames),
       "university_id": thread.universityId.toString(),
       "user_id": thread.userId.toString(),
-      "thread_marker": jsonEncode(thread.threadMapMarker.toMap())
+      "thread_marker": jsonEncode(thread.threadMapMarker.toMap()),
+      "has_thread_marker": hasThreadMapMarker.toString()
     };
 
     try {

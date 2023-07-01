@@ -157,8 +157,7 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
         newThreadMapMarker);
 
     // send request
-    QueryResult qr = await Thread.createThread(thread);
-    print(qr);
+    QueryResult qr = await Thread.createThread(thread, isThreadMapMarkerChosen);
 
     if (qr.result == false) {
       Utility.displayAlertMessage(

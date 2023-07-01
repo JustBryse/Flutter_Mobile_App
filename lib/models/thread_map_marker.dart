@@ -114,7 +114,6 @@ class ThreadMapMarker {
 
     var response =
         await Server.submitGetRequest(arguments, "fetch/thread_markers");
-    print(response);
     var fields = jsonDecode(response);
     qr.result = fields["result"];
     qr.message = fields["message"];
