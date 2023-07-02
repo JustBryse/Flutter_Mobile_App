@@ -220,10 +220,10 @@ class Thread {
         List<ThreadMedia> threadMediaList = List.empty(growable: true);
 
         for (var mediaField in threadField["media"]) {
-          ThreadMedia threadMedia = ThreadMedia.fetch(
+          ThreadMedia threadMedia = ThreadMedia.fetchWithUrl(
               mediaField["id"],
               mediaField["name"],
-              mediaField["base64_data"],
+              mediaField["s3_object_url"],
               mediaField["thread_id"]);
           threadMediaList.add(threadMedia);
         }
@@ -323,10 +323,10 @@ class Thread {
       List<ThreadMedia> threadMediaList = List.empty(growable: true);
 
       for (var mediaField in threadField["media"]) {
-        ThreadMedia threadMedia = ThreadMedia.fetch(
+        ThreadMedia threadMedia = ThreadMedia.fetchWithUrl(
             mediaField["id"],
             mediaField["name"],
-            mediaField["base64_data"],
+            mediaField["s3_object_url"],
             mediaField["thread_id"]);
         threadMediaList.add(threadMedia);
       }

@@ -296,12 +296,10 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
         ),
         backgroundColor: Utility.primaryColor,
         actions: [
-          /*
           IconButton(
             onPressed: attachMediaFiles,
             icon: const Icon(Icons.attach_file),
           ),
-          */
         ],
       ),
       body: isLoading
@@ -369,8 +367,6 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
                       ],
                     ),
                   ),
-
-                  /*
                   if (attachedFiles.isNotEmpty)
                     Container(
                       alignment: Alignment.center,
@@ -385,8 +381,6 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
                         ],
                       ),
                     ),
-                  */
-
                   Container(
                     padding: const EdgeInsets.all(8),
                     child: Row(

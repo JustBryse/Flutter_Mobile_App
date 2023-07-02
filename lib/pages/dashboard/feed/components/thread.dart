@@ -86,7 +86,7 @@ class _ThreadWidgetState extends State<ThreadWidget> {
     }
 
     currentMedia = widget.thread.threadMediaList[currentMediaIndex]
-        .getImageFromBytes(widget.width, 200, BoxFit.cover);
+        .getImageFromUrl(widget.width, 200, BoxFit.cover);
 
     if (widget.thread.threadMediaList.length < 2) {
       mediaIndexText = "";
@@ -293,7 +293,7 @@ class _ThreadWidgetState extends State<ThreadWidget> {
                   Container(
                     alignment: Alignment.center,
                     decoration: BoxDecoration(border: Border.all()),
-                    // assumes that the thread media base64 data is ready to go since (since the image data would be fetched from the server)
+                    // assumes that the thread media data is ready to go since (since the image data would be fetched from the server)
                     child: currentMedia,
                   ),
                 ],

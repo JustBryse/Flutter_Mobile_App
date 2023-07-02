@@ -14,6 +14,8 @@ class ThreadMedia {
   // byte list data that is used to construct UI media
   Uint8List _bytes = Uint8List(0);
   bool _hasBytes = false;
+  String _s3ObjectUrl = "";
+  bool _hasUrl = false;
 
   String get name => _file.name;
   String get extension => _file.extension;
@@ -21,6 +23,8 @@ class ThreadMedia {
   Uint8List get bytes => _bytes;
   String get base64Data => base64Encode(_bytes);
   bool get hasBytes => _hasBytes;
+  String get s3ObjectUrl => _s3ObjectUrl;
+  bool get hasUrl => _hasUrl;
 
   @override
   String toString() {
@@ -33,7 +37,8 @@ class ThreadMedia {
   }
 
   // used when fetching thread media from the back-end
-  ThreadMedia.fetch(int id, String name, String base64Data, int threadId) {
+  ThreadMedia.fetchWithBase64(
+      int id, String name, String base64Data, int threadId) {
     _id = id;
     _file = ThreadMediaFile.name(name);
     _bytes = base64Decode(base64Data);
@@ -41,10 +46,22 @@ class ThreadMedia {
     _threadId = threadId;
   }
 
+  // used when fetching thread media from the back-end
+  ThreadMedia.fetchWithUrl(
+      int id, String name, String s3ObjectUrl, int threadId) {
+    _id = id;
+    _file = ThreadMediaFile.name(name);
+    _s3ObjectUrl = s3ObjectUrl;
+    _hasUrl = true;
+    _threadId = threadId;
+  }
+
+  // used for picking files locally and converting to a byte list
   static Future<Uint8List> getBytesFromPath(String path) async {
     return await File(path).readAsBytes();
   }
 
+  // used for picking files locally and converting to a compressed byte list
   static Future<Uint8List> getCompressedBytesFromPath(
       String path, int compression) async {
     Uint8List fileBytes = await File(path).readAsBytes();
@@ -56,6 +73,16 @@ class ThreadMedia {
   Image getImageFromBytes(double width, double height, BoxFit boxFit) {
     return Image.memory(
       _bytes,
+      fit: boxFit,
+      width: width,
+      height: height,
+    );
+  }
+
+  // This function returns an image by using the
+  Image getImageFromUrl(double width, double height, BoxFit boxFit) {
+    return Image.network(
+      s3ObjectUrl,
       fit: boxFit,
       width: width,
       height: height,
