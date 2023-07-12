@@ -33,6 +33,11 @@ class _MarkerInterfaceState extends State<MarkerInterface> {
   void openThreadPage() async {
     QueryResult qr = await Thread.getThread(widget._threadMapMarker.threadId);
 
+    if (qr.result == false) {
+      Utility.displayAlertMessage(context, "Failed to Open Thread Page", "");
+      return;
+    }
+
     double width = MediaQuery.of(context).size.width * 0.95;
     Navigator.push(
       context,

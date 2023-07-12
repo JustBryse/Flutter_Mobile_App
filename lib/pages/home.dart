@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
 
       Map<String, String> arguments = {
         "email": emailTEC.text,
-        "password": User.getHashedPassword(passwordTEC.text)
+        "password": passwordTEC.text
       };
 
       var response = await Server.submitGetRequest(arguments, "login");

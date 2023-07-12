@@ -20,7 +20,7 @@ class Organization extends User {
     try {
       Map<String, dynamic> arguments = {
         "email": email,
-        "password": User.getHashedPassword(password),
+        "password": password,
         "alias": alias,
         "name": name,
       };

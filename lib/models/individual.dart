@@ -24,7 +24,7 @@ class Individual extends User {
     try {
       Map<String, dynamic> arguments = {
         "email": email,
-        "password": User.getHashedPassword(password),
+        "password": password,
         "alias": alias,
         "first_name": firstName,
         "last_name": lastName,

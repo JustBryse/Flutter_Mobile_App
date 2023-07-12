@@ -89,6 +89,7 @@ class ThreadComment {
     } catch (e) {
       qr.message = "Error in ThreadComment.incrementUpVote(): $e";
     }
+    print(qr);
     return qr;
   }
 
@@ -103,6 +104,7 @@ class ThreadComment {
     } catch (e) {
       qr.message = "Error in ThreadComment.incrementUpVote(): $e";
     }
+    print(qr);
     return qr;
   }
 
@@ -126,6 +128,7 @@ class ThreadComment {
     } catch (e) {
       qr.message = "Failed to create thread comment. Error: $e";
     }
+    print(qr);
     return qr;
   }
 

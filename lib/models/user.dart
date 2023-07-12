@@ -25,13 +25,6 @@ class User {
     _alias = alias;
   }
 
-  // hashes a password
-  static String getHashedPassword(String password) {
-    List<int> encodedPassword = utf8.encode(password);
-    Digest hashedPassword = sha256.convert(encodedPassword);
-    return hashedPassword.toString();
-  }
-
   @override
   String toString() {
     // TODO: implement toString

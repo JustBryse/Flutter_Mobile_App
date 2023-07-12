@@ -301,6 +301,7 @@ class Thread {
       };
 
       var response = await Server.submitGetRequest(arguments, "fetch/thread");
+      print(response);
       var fields = jsonDecode(response);
       qr.result = fields["result"];
       qr.message = fields["message"];
@@ -388,6 +389,7 @@ class Thread {
       qr.result = false;
       qr.message = "Erorr in Thread.getThread():$e";
     }
+    print(qr);
     return qr;
   }
 }

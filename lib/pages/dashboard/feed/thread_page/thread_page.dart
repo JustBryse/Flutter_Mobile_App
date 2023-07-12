@@ -92,6 +92,7 @@ class _ThreadPageState extends State<ThreadPage> {
       return false;
     }
 
+    print(tc.toString());
     QueryResult qr = await ThreadComment.createThreadComment(tc);
 
     if (qr.result == false) {

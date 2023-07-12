@@ -46,6 +46,8 @@ class ThreadCommentVote {
       var response = await Server.submitPostRequest(
           arguments, "update/thread_comment/increment-up-vote");
 
+      print(response);
+
       var fields = jsonDecode(response);
       qr.result = fields["result"];
       qr.message = fields["message"];
@@ -73,6 +75,8 @@ class ThreadCommentVote {
       };
       var response = await Server.submitPostRequest(
           arguments, "update/thread_comment/rescind-up-vote");
+
+      print(response);
 
       var fields = jsonDecode(response);
       qr.result = fields["result"];
