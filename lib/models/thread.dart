@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cao_prototype/support/session.dart';
+import 'package:cao_prototype/support/time_utility.dart';
 
 class Thread {
   int _id = -1;
@@ -302,10 +303,7 @@ class Thread {
     QueryResult qr = QueryResult();
 
     try {
-      String lowerDateFormatted = lowerDate
-          .toIso8601String()
-          .replaceAll(RegExp("T"), " ")
-          .replaceAll(RegExp("00.000"), "00");
+      String lowerDateFormatted = TimeUtility.getIsoDateTime(lowerDate);
 
       Map<String, String> arguments = {
         "user_id": Session.currentUser.id.toString(),
