@@ -1,6 +1,7 @@
 import 'package:cao_prototype/models/thread_comment.dart';
 import 'package:cao_prototype/models/thread_media.dart';
 import 'package:cao_prototype/models/thread_tag.dart';
+import 'package:cao_prototype/models/university.dart';
 import 'package:cao_prototype/pages/dashboard/feed/components/thread.dart';
 import 'package:cao_prototype/pages/dashboard/feed/components/thread_tag.dart';
 import 'package:cao_prototype/pages/dashboard/feed/create_thread/create_thread.dart';
@@ -10,6 +11,7 @@ import 'package:cao_prototype/support/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:cao_prototype/models/thread.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class DashboardFeed extends StatefulWidget {
   const DashboardFeed({super.key});
@@ -22,21 +24,74 @@ class _DashboardFeedState extends State<DashboardFeed> {
   ScrollController feedController = ScrollController();
 
   List<ThreadWidget> threadWidgets = List.empty(growable: true);
+  List<MultiSelectItem<University>> multiselectUniversityItems =
+      List.empty(growable: true);
+
+  List<University> filteredUniversities = List.empty(growable: true);
+  DateTime filteredLowerDate = DateTime(2020, 1, 1, 0, 0, 0);
 
   bool isLoading = false;
+  bool isThreadFilterVisible = false;
 
   @override
   void initState() {
     super.initState();
+    getThreadsOnStart();
+  }
+
+  Future<void> getUniversities() async {
+    QueryResult qr = QueryResult();
+    qr = await University.getUniversities();
+
+    if (qr.result == false) {
+      Utility.displayAlertMessage(
+          context, "Failed to Load Data", "Please try again.");
+      return;
+    }
+
+    multiselectUniversityItems.clear();
+
+    for (University u in qr.data) {
+      multiselectUniversityItems.add(MultiSelectItem(u, u.toString()));
+      filteredUniversities.add(
+          u); // Loading university filters automatically. This will be replaced with user's filter preferences.
+    }
+
+    setState(() {
+      multiselectUniversityItems;
+    });
+  }
+
+  void getThreadsOnStart() async {
+    // must wait for university data to get the university ids that are part of the thread filtering options
+    await getUniversities();
     getThreads();
   }
 
   void getThreads() async {
-    threadWidgets.clear();
     setState(() {
       isLoading = true;
     });
-    QueryResult qr = await Thread.getThreads();
+
+    List<int> currentThreadIds = List.empty(growable: true);
+
+    for (ThreadWidget tw in threadWidgets) {
+      currentThreadIds.add(tw.thread.id);
+    }
+
+    List<int> filteredUniversityIds = List.empty(growable: true);
+
+    for (University u in filteredUniversities) {
+      filteredUniversityIds.add(u.id);
+    }
+
+    //threadWidgets.clear();
+
+    QueryResult qr = await Thread.getFilteredThreads(
+      filteredUniversityIds,
+      currentThreadIds,
+      filteredLowerDate,
+    );
 
     if (qr.result == false) {
       Utility.displayAlertMessage(context, "Failed to Load Threads", "");
@@ -120,6 +175,25 @@ class _DashboardFeedState extends State<DashboardFeed> {
     });
   }
 
+  void displayThreadFilterOptions() {
+    setState(() {
+      isThreadFilterVisible = true;
+    });
+  }
+
+  void closeThreadFilterOptions() {
+    setState(() {
+      isThreadFilterVisible = false;
+    });
+  }
+
+  void confirmUniversityFilter(List<University> universities) {
+    filteredUniversities.clear();
+    for (University university in universities) {
+      filteredUniversities.add(university);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,10 +211,18 @@ class _DashboardFeedState extends State<DashboardFeed> {
           AbsorbPointer(
             absorbing: isLoading,
             child: IconButton(
-                onPressed: getThreads, icon: const Icon(Icons.refresh)),
+              onPressed: getThreads,
+              icon: const Icon(Icons.refresh),
+            ),
           ),
           IconButton(
-              onPressed: navigateToThreadCreation, icon: const Icon(Icons.add))
+            onPressed: navigateToThreadCreation,
+            icon: const Icon(Icons.add),
+          ),
+          IconButton(
+            onPressed: displayThreadFilterOptions,
+            icon: const Icon(Icons.settings),
+          )
         ],
       ),
       body: isLoading
@@ -150,12 +232,73 @@ class _DashboardFeedState extends State<DashboardFeed> {
                 style: TextStyle(fontSize: 20, color: Utility.secondaryColor),
               ),
             )
-          : ListView.builder(
-              controller: feedController,
-              itemCount: threadWidgets.length,
-              itemBuilder: (context, index) {
-                return threadWidgets[index];
-              },
+          : Stack(
+              children: [
+                ListView.builder(
+                  controller: feedController,
+                  itemCount: threadWidgets.length,
+                  itemBuilder: (context, index) {
+                    return threadWidgets[index];
+                  },
+                ),
+                Visibility(
+                  visible: isThreadFilterVisible,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height * 0.125,
+                      decoration: const BoxDecoration(
+                        color: Utility.primaryColor,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(1),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              MultiSelectDialogField(
+                                items: multiselectUniversityItems,
+                                onConfirm: confirmUniversityFilter,
+                                searchable: true,
+                                buttonText: const Text(
+                                  "University Filter",
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      color: Utility.secondaryColor),
+                                ),
+                                title: const Text(
+                                  "Universities",
+                                  style:
+                                      TextStyle(color: Utility.secondaryColor),
+                                ),
+                                confirmText: const Text(
+                                  "Confirm",
+                                  style: TextStyle(color: Utility.primaryColor),
+                                ),
+                                cancelText: const Text(
+                                  "Cancel",
+                                  style: TextStyle(color: Utility.primaryColor),
+                                ),
+                                searchIcon: const Icon(Icons.search),
+                              ),
+                              IconButton(
+                                onPressed: closeThreadFilterOptions,
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Utility.secondaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
     );
   }
