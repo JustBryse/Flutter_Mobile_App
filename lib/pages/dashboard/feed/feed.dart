@@ -302,17 +302,21 @@ class _DashboardFeedState extends State<DashboardFeed> {
                     itemBuilder: (context, index) {
                       if (index == threadWidgets.length) {
                         // include a button at the bottom to load more threads
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Utility.tertiaryColor,
-                            border: Border.all(),
-                          ),
-                          child: TextButton(
-                            onPressed: getMoreThreads,
-                            child: const Text(
-                              "Show More",
-                              style: TextStyle(
-                                color: Utility.primaryColor,
+                        return Visibility(
+                          visible: isRefreshingThreads == false &&
+                              isLoadingMoreThreads == false,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Utility.tertiaryColor,
+                              border: Border.all(),
+                            ),
+                            child: TextButton(
+                              onPressed: getMoreThreads,
+                              child: const Text(
+                                "Show More",
+                                style: TextStyle(
+                                  color: Utility.primaryColor,
+                                ),
                               ),
                             ),
                           ),
