@@ -29,6 +29,7 @@ class _DashboardFeedState extends State<DashboardFeed> {
 
   List<University> filteredUniversities = List.empty(growable: true);
   DateTime filteredLowerDate = DateTime(2020, 1, 1, 0, 0, 0);
+  Duration selectedThreadAge = const Duration(days: 1);
 
   bool isLoading = false;
   bool isThreadFilterVisible = false;
@@ -194,6 +195,17 @@ class _DashboardFeedState extends State<DashboardFeed> {
     }
   }
 
+  void onMaximumThreadAgeSelected(Duration? duration) {
+    if (duration == null) {
+      return;
+    }
+
+    filteredLowerDate = DateTime.now().subtract(duration);
+    setState(() {
+      selectedThreadAge = duration;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -246,30 +258,91 @@ class _DashboardFeedState extends State<DashboardFeed> {
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.125,
-                      decoration: const BoxDecoration(
-                        color: Utility.primaryColor,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(1),
-                        ),
-                      ),
-                      child: Column(
+                      color: Utility.primaryColor,
+                      child: ListView(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              MultiSelectDialogField(
+                              const Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Text(
+                                  "Thread Filters",
+                                  style: TextStyle(
+                                    color: Utility.secondaryColor,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: closeThreadFilterOptions,
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Utility.secondaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                              child: DropdownMenu(
+                                width: MediaQuery.of(context).size.width * 0.99,
+                                leadingIcon: const Icon(
+                                  Icons.alarm,
+                                  color: Utility.secondaryColor,
+                                ),
+                                enableSearch: false,
+                                enableFilter: false,
+                                textStyle: const TextStyle(
+                                  color: Utility.secondaryColor,
+                                ),
+                                onSelected: onMaximumThreadAgeSelected,
+                                initialSelection: selectedThreadAge,
+                                dropdownMenuEntries: const [
+                                  DropdownMenuEntry<Duration>(
+                                    value: Duration(days: 1),
+                                    label: "1 Day",
+                                  ),
+                                  DropdownMenuEntry<Duration>(
+                                    value: Duration(days: 3),
+                                    label: "3 Days",
+                                  ),
+                                  DropdownMenuEntry<Duration>(
+                                    value: Duration(days: 7),
+                                    label: "1 Week",
+                                  ),
+                                  DropdownMenuEntry<Duration>(
+                                    value: Duration(days: 14),
+                                    label: "2 Weeks",
+                                  ),
+                                  DropdownMenuEntry<Duration>(
+                                    value: Duration(days: 30),
+                                    label: "1 Month",
+                                  ),
+                                  DropdownMenuEntry<Duration>(
+                                    value: Duration(days: 90),
+                                    label: "3 Months",
+                                  ),
+                                  DropdownMenuEntry<Duration>(
+                                    value: Duration(days: 36500),
+                                    label: "All Time",
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                              child: MultiSelectDialogField(
+                                listType: MultiSelectListType.CHIP,
+                                initialValue: filteredUniversities,
                                 items: multiselectUniversityItems,
                                 onConfirm: confirmUniversityFilter,
                                 searchable: true,
                                 buttonText: const Text(
-                                  "University Filter",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      color: Utility.secondaryColor),
-                                ),
-                                title: const Text(
                                   "Universities",
                                   style:
                                       TextStyle(color: Utility.secondaryColor),
@@ -284,14 +357,7 @@ class _DashboardFeedState extends State<DashboardFeed> {
                                 ),
                                 searchIcon: const Icon(Icons.search),
                               ),
-                              IconButton(
-                                onPressed: closeThreadFilterOptions,
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Utility.secondaryColor,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
