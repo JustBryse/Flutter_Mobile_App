@@ -24,14 +24,16 @@ class _DashboardFeedState extends State<DashboardFeed> {
   ScrollController feedController = ScrollController();
 
   List<ThreadWidget> threadWidgets = List.empty(growable: true);
-  List<MultiSelectItem<University>> multiselectUniversityItems =
+  // contains the ids of the universities that can be filtered on
+  List<MultiSelectItem<int>> multiselectUniversityItems =
       List.empty(growable: true);
 
-  List<University> filteredUniversities = List.empty(growable: true);
+  List<int> filteredUniversityIds = List.empty(growable: true);
   DateTime filteredLowerDate = DateTime(2020, 1, 1, 0, 0, 0);
   Duration selectedThreadAge = const Duration(days: 1);
 
-  bool isLoading = false;
+  bool isRefreshingThreads = false;
+  bool isLoadingMoreThreads = false;
   bool isThreadFilterVisible = false;
 
   @override
@@ -53,9 +55,9 @@ class _DashboardFeedState extends State<DashboardFeed> {
     multiselectUniversityItems.clear();
 
     for (University u in qr.data) {
-      multiselectUniversityItems.add(MultiSelectItem(u, u.toString()));
-      filteredUniversities.add(
-          u); // Loading university filters automatically. This will be replaced with user's filter preferences.
+      multiselectUniversityItems.add(MultiSelectItem(u.id, u.toString()));
+      filteredUniversityIds.add(u
+          .id); // Loading university filters automatically. This will be replaced with user's filter preferences.
     }
 
     setState(() {
@@ -66,27 +68,64 @@ class _DashboardFeedState extends State<DashboardFeed> {
   void getThreadsOnStart() async {
     // must wait for university data to get the university ids that are part of the thread filtering options
     await getUniversities();
-    getThreads();
+    refreshThreads();
   }
 
-  void getThreads() async {
+  // clears out the feed and loads it with the top threads at the time of calling thi function
+  void refreshThreads() async {
     setState(() {
-      isLoading = true;
+      isRefreshingThreads = true;
     });
 
+    // erase current threads in the feed
+    threadWidgets.clear();
+
+    // get the top threads as of now
+    QueryResult qr = await Thread.getFilteredThreads(
+      filteredUniversityIds,
+      [], // We don't care about possibly re-serving threads that are already in the feed. This is a refresh after all
+      filteredLowerDate,
+    );
+
+    if (qr.result == false) {
+      Utility.displayAlertMessage(context, "Failed to Load Threads", "");
+      print("Error message: " + qr.message);
+      setState(() {
+        isRefreshingThreads = false;
+      });
+      return;
+    }
+
+    // populate the feed with thread widgets
+    for (Thread thread in qr.data) {
+      double width = MediaQuery.of(context).size.width * 0.95;
+      threadWidgets.add(
+        ThreadWidget.feed(
+          thread: thread,
+          openThread: navigateToThreadPage,
+          width: width,
+        ),
+      );
+    }
+
+    setState(() {
+      threadWidgets;
+      isRefreshingThreads = false;
+    });
+  }
+
+  // similar to refreshThreads, but differs by adding more threads to the thread list that is already in the feed
+  void getMoreThreads() async {
+    setState(() {
+      isLoadingMoreThreads = true;
+    });
+
+    // this list contains the thread ids of the threads that are already in the feed, so the back-end knows not to re-serve the same threads
     List<int> currentThreadIds = List.empty(growable: true);
 
     for (ThreadWidget tw in threadWidgets) {
       currentThreadIds.add(tw.thread.id);
     }
-
-    List<int> filteredUniversityIds = List.empty(growable: true);
-
-    for (University u in filteredUniversities) {
-      filteredUniversityIds.add(u.id);
-    }
-
-    //threadWidgets.clear();
 
     QueryResult qr = await Thread.getFilteredThreads(
       filteredUniversityIds,
@@ -97,6 +136,9 @@ class _DashboardFeedState extends State<DashboardFeed> {
     if (qr.result == false) {
       Utility.displayAlertMessage(context, "Failed to Load Threads", "");
       print("Error message: " + qr.message);
+      setState(() {
+        isLoadingMoreThreads = false;
+      });
       return;
     }
 
@@ -113,7 +155,7 @@ class _DashboardFeedState extends State<DashboardFeed> {
 
     setState(() {
       threadWidgets;
-      isLoading = false;
+      isLoadingMoreThreads = false;
     });
   }
 
@@ -188,10 +230,10 @@ class _DashboardFeedState extends State<DashboardFeed> {
     });
   }
 
-  void confirmUniversityFilter(List<University> universities) {
-    filteredUniversities.clear();
-    for (University university in universities) {
-      filteredUniversities.add(university);
+  void confirmUniversityFilter(List<int> universityIds) {
+    filteredUniversityIds.clear();
+    for (int id in universityIds) {
+      filteredUniversityIds.add(id);
     }
   }
 
@@ -221,150 +263,204 @@ class _DashboardFeedState extends State<DashboardFeed> {
         backgroundColor: Utility.primaryColor,
         actions: [
           AbsorbPointer(
-            absorbing: isLoading,
+            absorbing: isRefreshingThreads || isLoadingMoreThreads,
             child: IconButton(
-              onPressed: getThreads,
+              onPressed: refreshThreads,
               icon: const Icon(Icons.refresh),
             ),
           ),
-          IconButton(
-            onPressed: navigateToThreadCreation,
-            icon: const Icon(Icons.add),
+          AbsorbPointer(
+            absorbing: isRefreshingThreads || isLoadingMoreThreads,
+            child: IconButton(
+              onPressed: navigateToThreadCreation,
+              icon: const Icon(Icons.add),
+            ),
           ),
-          IconButton(
-            onPressed: displayThreadFilterOptions,
-            icon: const Icon(Icons.settings),
-          )
+          AbsorbPointer(
+            absorbing: isRefreshingThreads || isLoadingMoreThreads,
+            child: IconButton(
+              onPressed: displayThreadFilterOptions,
+              icon: const Icon(Icons.settings),
+            ),
+          ),
         ],
       ),
-      body: isLoading
+      body: isRefreshingThreads
           ? const Center(
               child: Text(
                 "Loading Feed...",
                 style: TextStyle(fontSize: 20, color: Utility.secondaryColor),
               ),
             )
-          : Stack(
-              children: [
-                ListView.builder(
-                  controller: feedController,
-                  itemCount: threadWidgets.length,
-                  itemBuilder: (context, index) {
-                    return threadWidgets[index];
-                  },
-                ),
-                Visibility(
-                  visible: isThreadFilterVisible,
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      color: Utility.primaryColor,
-                      child: ListView(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.all(8),
-                                child: Text(
-                                  "Thread Filters",
-                                  style: TextStyle(
+          : AbsorbPointer(
+              absorbing: isRefreshingThreads || isLoadingMoreThreads,
+              child: Stack(
+                children: [
+                  ListView.builder(
+                    controller: feedController,
+                    itemCount: threadWidgets.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == threadWidgets.length) {
+                        // include a button at the bottom to load more threads
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Utility.tertiaryColor,
+                            border: Border.all(),
+                          ),
+                          child: TextButton(
+                            onPressed: getMoreThreads,
+                            child: const Text(
+                              "Show More",
+                              style: TextStyle(
+                                color: Utility.primaryColor,
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return threadWidgets[index];
+                      }
+                    },
+                  ),
+                  Visibility(
+                    visible: isThreadFilterVisible,
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: Container(
+                        color: Utility.primaryColor,
+                        child: ListView(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.all(8),
+                                  child: Text(
+                                    "Thread Filters",
+                                    style: TextStyle(
+                                      color: Utility.secondaryColor,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: closeThreadFilterOptions,
+                                  icon: const Icon(
+                                    Icons.close,
                                     color: Utility.secondaryColor,
                                   ),
                                 ),
-                              ),
-                              IconButton(
-                                onPressed: closeThreadFilterOptions,
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Utility.secondaryColor,
+                              ],
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                                child: DropdownMenu(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.99,
+                                  leadingIcon: const Icon(
+                                    Icons.alarm,
+                                    color: Utility.secondaryColor,
+                                  ),
+                                  enableSearch: false,
+                                  enableFilter: false,
+                                  textStyle: const TextStyle(
+                                    color: Utility.secondaryColor,
+                                  ),
+                                  onSelected: onMaximumThreadAgeSelected,
+                                  initialSelection: selectedThreadAge,
+                                  dropdownMenuEntries: const [
+                                    DropdownMenuEntry<Duration>(
+                                      value: Duration(days: 1),
+                                      label: "1 Day",
+                                    ),
+                                    DropdownMenuEntry<Duration>(
+                                      value: Duration(days: 3),
+                                      label: "3 Days",
+                                    ),
+                                    DropdownMenuEntry<Duration>(
+                                      value: Duration(days: 7),
+                                      label: "1 Week",
+                                    ),
+                                    DropdownMenuEntry<Duration>(
+                                      value: Duration(days: 14),
+                                      label: "2 Weeks",
+                                    ),
+                                    DropdownMenuEntry<Duration>(
+                                      value: Duration(days: 30),
+                                      label: "1 Month",
+                                    ),
+                                    DropdownMenuEntry<Duration>(
+                                      value: Duration(days: 90),
+                                      label: "3 Months",
+                                    ),
+                                    DropdownMenuEntry<Duration>(
+                                      value: Duration(days: 36500),
+                                      label: "All Time",
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                              child: DropdownMenu(
-                                width: MediaQuery.of(context).size.width * 0.99,
-                                leadingIcon: const Icon(
-                                  Icons.alarm,
-                                  color: Utility.secondaryColor,
-                                ),
-                                enableSearch: false,
-                                enableFilter: false,
-                                textStyle: const TextStyle(
-                                  color: Utility.secondaryColor,
-                                ),
-                                onSelected: onMaximumThreadAgeSelected,
-                                initialSelection: selectedThreadAge,
-                                dropdownMenuEntries: const [
-                                  DropdownMenuEntry<Duration>(
-                                    value: Duration(days: 1),
-                                    label: "1 Day",
-                                  ),
-                                  DropdownMenuEntry<Duration>(
-                                    value: Duration(days: 3),
-                                    label: "3 Days",
-                                  ),
-                                  DropdownMenuEntry<Duration>(
-                                    value: Duration(days: 7),
-                                    label: "1 Week",
-                                  ),
-                                  DropdownMenuEntry<Duration>(
-                                    value: Duration(days: 14),
-                                    label: "2 Weeks",
-                                  ),
-                                  DropdownMenuEntry<Duration>(
-                                    value: Duration(days: 30),
-                                    label: "1 Month",
-                                  ),
-                                  DropdownMenuEntry<Duration>(
-                                    value: Duration(days: 90),
-                                    label: "3 Months",
-                                  ),
-                                  DropdownMenuEntry<Duration>(
-                                    value: Duration(days: 36500),
-                                    label: "All Time",
-                                  ),
-                                ],
                               ),
                             ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                              child: MultiSelectDialogField(
-                                listType: MultiSelectListType.CHIP,
-                                initialValue: filteredUniversities,
-                                items: multiselectUniversityItems,
-                                onConfirm: confirmUniversityFilter,
-                                searchable: true,
-                                buttonText: const Text(
-                                  "Universities",
-                                  style:
-                                      TextStyle(color: Utility.secondaryColor),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                child: MultiSelectDialogField<int>(
+                                  listType: MultiSelectListType.CHIP,
+                                  initialValue: filteredUniversityIds,
+                                  items: multiselectUniversityItems,
+                                  onConfirm: confirmUniversityFilter,
+                                  searchable: true,
+                                  buttonText: const Text(
+                                    "Universities",
+                                    style: TextStyle(
+                                        color: Utility.secondaryColor),
+                                  ),
+                                  confirmText: const Text(
+                                    "Confirm",
+                                    style:
+                                        TextStyle(color: Utility.primaryColor),
+                                  ),
+                                  cancelText: const Text(
+                                    "Cancel",
+                                    style:
+                                        TextStyle(color: Utility.primaryColor),
+                                  ),
+                                  searchIcon: const Icon(Icons.search),
                                 ),
-                                confirmText: const Text(
-                                  "Confirm",
-                                  style: TextStyle(color: Utility.primaryColor),
-                                ),
-                                cancelText: const Text(
-                                  "Cancel",
-                                  style: TextStyle(color: Utility.primaryColor),
-                                ),
-                                searchIcon: const Icon(Icons.search),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  Align(
+                    alignment: Alignment.center,
+                    child: Visibility(
+                      visible: isLoadingMoreThreads,
+                      child: Container(
+                        alignment: Alignment.center,
+                        width: MediaQuery.of(context).size.width * 0.75,
+                        height: MediaQuery.of(context).size.height * 0.25,
+                        decoration: const BoxDecoration(
+                          color: Utility.primaryColorTranslucent,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(1),
+                          ),
+                        ),
+                        child: const Text(
+                          "Loading Threads...",
+                          style: TextStyle(
+                            color: Utility.secondaryColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }

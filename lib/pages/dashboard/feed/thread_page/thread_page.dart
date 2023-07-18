@@ -92,7 +92,6 @@ class _ThreadPageState extends State<ThreadPage> {
       return false;
     }
 
-    print(tc.toString());
     QueryResult qr = await ThreadComment.createThreadComment(tc);
 
     if (qr.result == false) {
@@ -100,6 +99,9 @@ class _ThreadPageState extends State<ThreadPage> {
           context, "Failed to Create Comment", qr.message);
       return false;
     }
+
+    // give the newly created comment its unique id, courtesy of the back end http response
+    tc.setId(qr.data.id);
 
     // add thread comment
     setState(() {
@@ -126,6 +128,9 @@ class _ThreadPageState extends State<ThreadPage> {
           context, "Failed to Create Comment", qr.message);
       return false;
     }
+
+    // give the newly created comment its unique id, courtesy of the back end http response
+    tc.setId(qr.data.id);
 
     // add thread comment
     setState(() {

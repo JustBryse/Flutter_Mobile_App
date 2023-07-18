@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cao_prototype/models/thread_comment_vote.dart';
 import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/server.dart';
@@ -78,6 +77,10 @@ class ThreadComment {
     _parentId = parentId;
   }
 
+  void setId(int id) {
+    _id = id;
+  }
+
   Future<QueryResult> incrementUpVote() async {
     QueryResult qr = QueryResult();
     try {
@@ -125,10 +128,45 @@ class ThreadComment {
           await Server.submitPostRequest(arguments, "create/thread_comment");
       Map<String, dynamic> fields = jsonDecode(response);
       qr.result = fields["result"];
+
+      if (qr.result == false) {
+        return qr;
+      }
+
+      // get the comment data back from the server, which includes the comment's unique id that was assigned by the sql server
+      var commentField = fields["comment"];
+      ThreadCommentVote threadCommentVote = ThreadCommentVote.none();
+      if (commentField["thread_comment_vote"]["id"] != null) {
+        bool upVoteState =
+            commentField["thread_comment_vote"]["up_vote_state"] == 1;
+        bool downVoteState =
+            commentField["thread_comment_vote"]["down_vote_state"] == 1;
+
+        threadCommentVote = ThreadCommentVote.fetch(
+            commentField["thread_comment_vote"]["id"],
+            commentField["thread_comment_vote"]["comment_id"],
+            commentField["thread_comment_vote"]["user_id"],
+            upVoteState,
+            downVoteState);
+      }
+
+      ThreadComment commentEcho = ThreadComment.all(
+          commentField["id"],
+          commentField["content"],
+          commentField["up_votes"],
+          commentField["down_votes"],
+          commentField["user_id"],
+          commentField["user_alias"],
+          commentField["thread_id"],
+          commentField["parent_id"],
+          threadCommentVote);
+
+      qr.data = commentEcho;
+      qr.result = true;
     } catch (e) {
       qr.message = "Failed to create thread comment. Error: $e";
+      qr.result = false;
     }
-    print(qr);
     return qr;
   }
 
