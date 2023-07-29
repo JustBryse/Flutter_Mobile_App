@@ -4,6 +4,7 @@ import 'package:cao_prototype/models/individual.dart';
 import 'package:cao_prototype/models/organization.dart';
 import 'package:cao_prototype/pages/register.dart';
 import 'package:cao_prototype/pages/dashboard/dashboard.dart';
+import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/session.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
@@ -31,62 +32,72 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    bool isLoggedIn = false;
+    setState(() {
+      isLoggingIn = true;
+    });
 
-    try {
-      // disable the login UI while the login query is in progress
+    QueryResult qr = await Session.login(
+      "login",
+      emailTEC.text,
+      passwordTEC.text,
+    );
+
+    // load dashboard page
+    if (qr.result) {
+      // If it doesn't already exist, store the user's credentials locally to log-in automatically next time
+      await Session.saveUserCredentialsLocally(
+          Session.currentUser.email, Session.currentUser.password);
+
       setState(() {
-        isLoggingIn = true;
+        isLoggingIn = false;
       });
-
-      Map<String, String> arguments = {
-        "email": emailTEC.text,
-        "password": passwordTEC.text
-      };
-
-      var response = await Server.submitGetRequest(arguments, "login");
-      Map<String, dynamic> fields = jsonDecode(response);
-
-      // exit if the server failed to login the user
-      if (fields["result"] == false) {
-        throw Exception();
-      }
-
-      Map<String, dynamic> data = fields["data"];
-
-      if (fields["account_role"] == "organization") {
-        Session.currentUser = Organization.all(data["id"], data["email"],
-            data["password"], data["alias"], data["name"]);
-      } else {
-        Session.currentUser = Individual.all(
-            data["id"],
-            data["email"],
-            data["password"],
-            data["alias"],
-            data["first_name"],
-            data["last_name"]);
-      }
-
-      isLoggedIn = true;
-
-      print("Logged in user: " + Session.currentUser.toString());
-
-      //Utility.displayAlertMessage(
-      //context, "Login Successful", "Welcome " + displayName);
-    } catch (e) {
-      print("Error in _HomePageState.login(): " + e.toString());
-      Utility.displayAlertMessage(context, "Login Failed", "");
+      pushDashboardPage();
+    } else {
+      Utility.displayAlertMessage(context, "Failed to Sign In",
+          "Please check your credentials and try again.");
     }
 
     // enable the login UI once the login query is complete regardless of result
     setState(() {
       isLoggingIn = false;
     });
+  }
 
-    // load dashboard page
-    if (isLoggedIn) {
-      pushDashboardPage();
+  // attempt to login automatically with the most recent user credentials that were used to log in
+  void loginWithLocalCredentials() async {
+    setState(() {
+      isLoggingIn = true;
+    });
+
+    Map<String, Object?> credentials = await Session.getLocalUserCredentials();
+    if (credentials.isEmpty) {
+      setState(() {
+        isLoggingIn = false;
+      });
+      return;
     }
+
+    if (credentials["EMAIL"] != null && credentials["PASSWORD"] != null) {
+      QueryResult qr = await Session.login(
+        "login/automatic",
+        credentials["EMAIL"].toString(),
+        credentials["PASSWORD"].toString(),
+      );
+
+      if (qr.result) {
+        setState(() {
+          isLoggingIn = false;
+        });
+        pushDashboardPage();
+      } else {
+        Utility.displayAlertMessage(context, "Failed to Sign In",
+            "Please check your credentials and try again.");
+      }
+    }
+
+    setState(() {
+      isLoggingIn = false;
+    });
   }
 
   void pushDashboardPage() {

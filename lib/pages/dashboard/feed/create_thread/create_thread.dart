@@ -107,6 +107,14 @@ class _ThreadCreationPageState extends State<ThreadCreationPage> {
       Utility.displayAlertMessage(context, "Failed to create thread.",
           "Please check that the title and body are not empty.");
       return;
+    } else if (bodyTEC.text.length > 3000) {
+      Utility.displayAlertMessage(context, "Failed to Create Comment",
+          "Comment body length exceeds 3000 characters.");
+      return;
+    } else if (titleTEC.text.length > 255) {
+      Utility.displayAlertMessage(context, "Failed to Create Comment",
+          "Comment title length exceeds 255 characters.");
+      return;
     }
 
     // begin

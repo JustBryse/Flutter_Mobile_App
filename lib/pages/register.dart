@@ -137,13 +137,20 @@ class _RegisterPageState extends State<RegisterPage> {
         password2TEC.text.isEmpty ||
         password1TEC.text != password2TEC.text) {
       Utility.displayAlertMessage(context, "Invalid Credentials",
-          "Please enter passwords match and all fields are complete");
+          "Please ensure that passwords match and all fields are complete");
+      return;
+    } else if (aliasTEC.text.length > 255 ||
+        emailTEC.text.length > 255 ||
+        password1TEC.text.length > 255 ||
+        password2TEC.text.length > 255) {
+      Utility.displayAlertMessage(context, "Invalid Credentials",
+          "One of your inputs has a length that exceeds 255 characters");
       return;
     } else if (selectedAccountType == AccountTypes.INDIVIDUAL &&
         (individualFirstNameTEC.text.isEmpty ||
             individualLastNameTEC.text.isEmpty)) {
-      Utility.displayAlertMessage(context, "Invalid Credentials",
-          "Please enter a first and last name.");
+      Utility.displayAlertMessage(
+          context, "Invalid Credentials", "Please enter a first and last name");
       return;
     } else if (selectedAccountType == AccountTypes.ORGANIZATION &&
         organizationNameTEC.text.isEmpty) {

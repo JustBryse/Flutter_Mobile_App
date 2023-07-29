@@ -115,9 +115,16 @@ class _ThreadPageState extends State<ThreadPage> {
 
   // Called from the only thread widget component on the thread page. Send a bool result back to the thread component to indicate success or faiu
   Future<bool> createComment(ThreadComment tc) async {
+    // comment content must not be empty
     if (tc.content.isEmpty) {
       Utility.displayAlertMessage(context, "Failed to Create Comment",
           "Empty comments are not allowed.");
+      return false;
+    }
+    // comment length must not exceed SQL database field length
+    else if (tc.content.length > 3000) {
+      Utility.displayAlertMessage(context, "Failed to Create Comment",
+          "Comment content length exceeds 3000 characters.");
       return false;
     }
 
