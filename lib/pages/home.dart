@@ -24,6 +24,12 @@ class _HomePageState extends State<HomePage> {
   // used to record the state of whether the user is logging in
   bool isLoggingIn = false;
 
+  @override
+  void initState() {
+    super.initState();
+    loginWithLocalCredentials();
+  }
+
   // attempt to login, the data attribute of the QueryResult is a User instance
   void login() async {
     if (emailTEC.text.isEmpty || passwordTEC.text.isEmpty) {
