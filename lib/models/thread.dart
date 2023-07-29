@@ -296,8 +296,8 @@ class Thread {
 
   // Requests a list of threads to be served by the back-end server. The server decides which threads to respond with.
   static Future<QueryResult> getFilteredThreads(
-    List<int> university_ids,
-    List<int> excluded_thread_ids,
+    List<int> universityIds,
+    List<int> excludedThreadIds,
     DateTime lowerDate,
   ) async {
     QueryResult qr = QueryResult();
@@ -307,16 +307,16 @@ class Thread {
 
       Map<String, String> arguments = {
         "user_id": Session.currentUser.id.toString(),
-        "university_ids": jsonEncode(university_ids),
-        "thread_ids": jsonEncode(excluded_thread_ids),
+        "university_ids": jsonEncode(universityIds),
+        "thread_ids": jsonEncode(excludedThreadIds),
         "lower_date": lowerDateFormatted
       };
-      print(arguments);
+
       var response = await Server.submitGetRequest(
         arguments,
         "fetch/filtered_threads",
       );
-      print(response);
+
       Map<String, dynamic> fields = jsonDecode(response);
 
       //print(fields);
@@ -428,7 +428,7 @@ class Thread {
       };
 
       var response = await Server.submitGetRequest(arguments, "fetch/thread");
-      print(response);
+
       var fields = jsonDecode(response);
       qr.result = fields["result"];
       qr.message = fields["message"];
@@ -516,7 +516,7 @@ class Thread {
       qr.result = false;
       qr.message = "Erorr in Thread.getThread():$e";
     }
-    print(qr);
+
     return qr;
   }
 }

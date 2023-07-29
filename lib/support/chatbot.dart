@@ -21,7 +21,7 @@ class ChatbotQueries {
       qr.result = fields["result"];
 
       if (qr.result == false) {
-        throw Exception();
+        return qr;
       }
 
       qr.message = fields["message"];

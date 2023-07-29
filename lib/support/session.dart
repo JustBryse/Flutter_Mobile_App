@@ -8,7 +8,13 @@ import '../models/individual.dart';
 import '../models/organization.dart';
 import 'server.dart';
 
+enum LoginRoutes { MANUAL_LOGIN, AUTOMATIC_LOGIN }
+
 abstract class Session {
+  static const Map<LoginRoutes, String> loginRoutes = {
+    LoginRoutes.MANUAL_LOGIN: "login",
+    LoginRoutes.AUTOMATIC_LOGIN: "login/automatic"
+  };
   static const String _databaseName = "credential_database.db";
 
   static User currentUser = User.none();
@@ -23,6 +29,7 @@ abstract class Session {
       List<Map<String, Object?>> results = await db.rawQuery(query);
       // return true if there are locally saved user credentials
       result = results.isNotEmpty;
+      print("Local Credentials: " + results.toString());
     } catch (e) {
       print("Error in Session.localUserCredentialTableExists(): $e");
       result = false;
@@ -41,19 +48,17 @@ abstract class Session {
       // create database to store user credentials
       Database credentialDb = await openDatabase(
         dbPath,
-        onCreate: (db, version) async {
-          String query =
-              "create table USER_AUTHENTICATION (EMAIL varchar(255), PASSWORD varchar(255))";
-          await db.execute(query);
-        },
         version: 1,
       );
+      String query =
+          "create table USER_AUTHENTICATION (EMAIL text, PASSWORD text)";
+      await credentialDb.execute(query);
 
       // insert the user's credentials immediately
-      int resultCode = await credentialDb.insert(
-        "USER_AUTHENTICATION",
-        {"EMAIL": email, "PASSWORD": password},
-      );
+
+      query =
+          "insert into USER_AUTHENTICATION(EMAIL,PASSWORD) values ('$email','$password')";
+      int id = await credentialDb.rawInsert(query);
 
       result = true;
     } catch (e) {
@@ -72,7 +77,7 @@ abstract class Session {
     try {
       Database db = await openDatabase(dbPath);
       String query =
-          "update USER_AUTHENTICATION set EMAIL = '$email', set PASSWORD = '$password'";
+          "update USER_AUTHENTICATION set EMAIL = '$email', PASSWORD = '$password'";
       int affectedRowCount = await db.rawUpdate(query);
       result = affectedRowCount > 0;
     } catch (e) {
@@ -99,7 +104,7 @@ abstract class Session {
       result = await updateLocalUserCredentials(dbPath, email, password);
     }
 
-    return true;
+    return result;
   }
 
   static Future<Map<String, Object?>> getLocalUserCredentials() async {
@@ -123,12 +128,17 @@ abstract class Session {
   }
 
   static Future<QueryResult> login(
-      String httpRoute, String email, String password) async {
+    LoginRoutes route,
+    String email,
+    String password,
+  ) async {
     QueryResult qr = QueryResult();
+
     Map<String, String> arguments = {"email": email, "password": password};
 
     try {
-      var response = await Server.submitGetRequest(arguments, httpRoute);
+      var response =
+          await Server.submitGetRequest(arguments, loginRoutes[route]!);
       Map<String, dynamic> fields = jsonDecode(response);
 
       // exit if the server failed to login the user

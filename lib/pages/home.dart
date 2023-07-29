@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     QueryResult qr = await Session.login(
-      "login",
+      LoginRoutes.MANUAL_LOGIN,
       emailTEC.text,
       passwordTEC.text,
     );
@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
     // load dashboard page
     if (qr.result) {
       // If it doesn't already exist, store the user's credentials locally to log-in automatically next time
-      await Session.saveUserCredentialsLocally(
+      bool result = await Session.saveUserCredentialsLocally(
           Session.currentUser.email, Session.currentUser.password);
 
       setState(() {
@@ -79,10 +79,12 @@ class _HomePageState extends State<HomePage> {
 
     if (credentials["EMAIL"] != null && credentials["PASSWORD"] != null) {
       QueryResult qr = await Session.login(
-        "login/automatic",
+        LoginRoutes.AUTOMATIC_LOGIN,
         credentials["EMAIL"].toString(),
         credentials["PASSWORD"].toString(),
       );
+
+      print(qr);
 
       if (qr.result) {
         setState(() {
