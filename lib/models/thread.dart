@@ -175,6 +175,7 @@ class Thread {
     try {
       var response = await Server.submitThreadPostRequest(
           arguments, thread.threadMediaList, "create/thread");
+      print(response);
       var fields = jsonDecode(response);
       qr.result = fields["result"];
       qr.message = fields["message"];

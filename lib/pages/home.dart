@@ -48,25 +48,17 @@ class _HomePageState extends State<HomePage> {
       passwordTEC.text,
     );
 
-    // load dashboard page
-    if (qr.result) {
-      // If it doesn't already exist, store the user's credentials locally to log-in automatically next time
-      bool result = await Session.saveUserCredentialsLocally(
-          Session.currentUser.email, Session.currentUser.password);
+    setState(() {
+      isLoggingIn = false;
+    });
 
-      setState(() {
-        isLoggingIn = false;
-      });
+    // load dashboard page if login was successful
+    if (qr.result) {
       pushDashboardPage();
     } else {
       Utility.displayAlertMessage(context, "Failed to Sign In",
           "Please check your credentials and try again.");
     }
-
-    // enable the login UI once the login query is complete regardless of result
-    setState(() {
-      isLoggingIn = false;
-    });
   }
 
   // attempt to login automatically with the most recent user credentials that were used to log in
@@ -89,8 +81,6 @@ class _HomePageState extends State<HomePage> {
         credentials["EMAIL"].toString(),
         credentials["PASSWORD"].toString(),
       );
-
-      print(qr);
 
       if (qr.result) {
         setState(() {

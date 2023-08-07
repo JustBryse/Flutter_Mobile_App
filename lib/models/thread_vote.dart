@@ -31,30 +31,44 @@ class ThreadVote {
   }
 
   static Future<QueryResult> incrementUpVote(
-      int threadId, bool isRecastVote) async {
+    int threadId,
+    bool isRecastVote,
+  ) async {
     QueryResult qr = QueryResult();
     try {
       Map<String, dynamic> arguments = {
         "thread_id": threadId,
         "voter_user_id": Session.currentUser.id,
-        "is_recast_vote": isRecastVote
+        "is_recast_vote": isRecastVote,
       };
       var response = await Server.submitPostRequest(
-          arguments, "update/thread/increment-up-vote");
-      print(response);
+        arguments,
+        "update/thread/increment-up-vote",
+      );
+
       var fields = jsonDecode(response);
       qr.result = fields["result"];
       qr.message = fields["message"];
+      qr.resultCode = fields["result_code"]; // this is an integer
+
+      if (qr.result == false) {
+        return qr;
+      }
+
+      // if everything is ok, then complete the thread-up-vote
+
       bool upVoteState = fields["thread_vote"]["up_vote_state"] == 1;
       bool downVoteState = fields["thread_vote"]["down_vote_state"] == 1;
       ThreadVote threadVote = ThreadVote.fetch(
-          fields["thread_vote"]["id"],
-          fields["thread_vote"]["thread_id"],
-          fields["thread_vote"]["user_id"],
-          upVoteState,
-          downVoteState);
+        fields["thread_vote"]["id"],
+        fields["thread_vote"]["thread_id"],
+        fields["thread_vote"]["user_id"],
+        upVoteState,
+        downVoteState,
+      );
       qr.data = threadVote;
     } catch (e) {
+      qr.result = false;
       print("Error in ThreadVote.incrementUpVote(): $e");
     }
 
@@ -70,10 +84,13 @@ class ThreadVote {
       };
       var response = await Server.submitPostRequest(
           arguments, "update/thread/rescind-up-vote");
-      print(response);
       var fields = jsonDecode(response);
       qr.result = fields["result"];
       qr.message = fields["message"];
+
+      if (qr.result == false) {
+        return qr;
+      }
 
       bool upVoteState = fields["thread_vote"]["up_vote_state"] == 1;
       bool downVoteState = fields["thread_vote"]["down_vote_state"] == 1;

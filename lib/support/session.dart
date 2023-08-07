@@ -18,6 +18,8 @@ abstract class Session {
   static const String _databaseName = "credential_database.db";
 
   static User currentUser = User.none();
+  static String identityToken =
+      ""; // this is used to authenticate the client with the server and is retrived during log-in
 
   static Future<bool> localUserCredentialTableExists() async {
     bool result = false;
@@ -140,19 +142,25 @@ abstract class Session {
       var response =
           await Server.submitGetRequest(arguments, loginRoutes[route]!);
       Map<String, dynamic> fields = jsonDecode(response);
+      qr.result = fields["result"];
+      print(fields);
 
       // exit if the server failed to login the user
-      if (fields["result"] == false) {
+      if (qr.result == false) {
         qr.message = fields["message"];
-        qr.result = false;
         return qr;
       }
 
       Map<String, dynamic> data = fields["data"];
 
       if (fields["account_role"] == "organization") {
-        Session.currentUser = Organization.all(data["id"], data["email"],
-            data["password"], data["alias"], data["name"]);
+        Session.currentUser = Organization.all(
+          data["id"],
+          data["email"],
+          data["password"],
+          data["alias"],
+          data["name"],
+        );
       } else {
         Session.currentUser = Individual.all(
             data["id"],
@@ -162,11 +170,50 @@ abstract class Session {
             data["first_name"],
             data["last_name"]);
       }
-      qr.result = true;
+
+      Session.identityToken = fields["identity_token"];
       qr.data = Session.currentUser;
+
+      // if the login was done manually and completed successfully, then locally save the user's credentials
+      if (route == LoginRoutes.MANUAL_LOGIN) {
+        qr.result = await Session.saveUserCredentialsLocally(
+          Session.currentUser.email,
+          Session.currentUser.password,
+        );
+      }
     } catch (e) {
       print("Error in Session.login(): $e");
       qr.result = false;
+    }
+    print(qr);
+    return qr;
+  }
+
+  static Future<QueryResult> loginWithSavedCredentials() async {
+    QueryResult qr = QueryResult();
+
+    // attempt to get locally saved user credentials
+    Map<String, Object?> credentials = await Session.getLocalUserCredentials();
+    if (credentials.isEmpty) {
+      qr.result = false;
+      qr.message =
+          "Failed to read locally saved credentials. Please manually sign in.";
+      print(qr);
+      return qr;
+    }
+
+    if (credentials["EMAIL"] != null && credentials["PASSWORD"] != null) {
+      qr = await Session.login(
+        LoginRoutes.AUTOMATIC_LOGIN,
+        credentials["EMAIL"].toString(),
+        credentials["PASSWORD"].toString(),
+      );
+
+      print("2A " + qr.toString());
+
+      if (qr.result == false) {
+        qr.message = "Failed to authenticate user. Please manually sign in.";
+      }
     }
 
     return qr;

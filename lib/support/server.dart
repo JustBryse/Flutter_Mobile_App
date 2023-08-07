@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:cao_prototype/models/thread.dart';
 import 'package:cao_prototype/models/thread_media.dart';
 import 'package:cao_prototype/support/queries.dart';
+import 'package:cao_prototype/support/session.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
@@ -12,29 +13,56 @@ abstract class Server {
   static const String url = "cao-prototype.herokuapp.com";
 
   static submitGetRequest(Map<String, dynamic> arguments, String path) async {
+    arguments["user_id"] = jsonEncode(Session.currentUser.id);
+    //arguments["identity_token"] = Session.identityToken;
+
     var client = http.Client();
     Uri uri = Uri.https(url, path, arguments);
-    var response = await client.get(uri);
+    var response = await client.get(
+      uri,
+      headers: {
+        "Identity-Token": Session.identityToken,
+      },
+    );
     return response.body;
   }
 
   static submitPostRequest(Map<String, dynamic> arguments, String path) async {
+    arguments["user_id"] = Session.currentUser.id;
+    //arguments["identity_token"] = Session.identityToken;
+    print("Arguments: " + jsonEncode(arguments));
+
     var client = http.Client();
 
     Uri uri = Uri.https(url, path);
-    var response =
-        await client.post(uri, body: jsonEncode(arguments), headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Referer": "https://heroku.com"
-    });
+
+    var response = await client.post(
+      uri,
+      body: jsonEncode(arguments),
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Referer": "https://heroku.com",
+        "Identity-Token": Session.identityToken,
+        "Is-Multipart": jsonEncode(false),
+      },
+    );
+    print(response.body);
     return response.body;
   }
 
   // don't forget to json-encode the map parameter arguments' values before passing to this function
-  static submitThreadPostRequest(Map<String, String> arguments,
-      List<ThreadMedia> threadMedia, String path) async {
+  static submitThreadPostRequest(
+    Map<String, String> arguments,
+    List<ThreadMedia> threadMedia,
+    String path,
+  ) async {
+    //arguments["is_multipart_request"] = true.toString();
+    arguments["user_id"] = jsonEncode(Session.currentUser.id);
+    //arguments["identity_token"] = Session.identityToken;
+
     Uri uri = Uri.https(url, path);
+    print(arguments);
 
     int fileUploadSize = 0;
 
@@ -43,13 +71,18 @@ abstract class Server {
     for (int i = 0; i < threadMedia.length; ++i) {
       ThreadMedia media = threadMedia[i];
       String fileKey = "file$i";
-      List<int> bytes =
-          await ThreadMedia.getCompressedBytesFromPath(media.path, 10);
+      List<int> bytes = await ThreadMedia.getCompressedBytesFromPath(
+        media.path,
+        10,
+      );
 
       fileUploadSize += bytes.length;
 
-      http.MultipartFile mpf =
-          http.MultipartFile.fromBytes(fileKey, bytes, filename: media.name);
+      http.MultipartFile mpf = http.MultipartFile.fromBytes(
+        fileKey,
+        bytes,
+        filename: media.name,
+      );
       multiPartFiles.add(mpf);
     }
 
@@ -65,26 +98,16 @@ abstract class Server {
       ..headers.addAll({
         "Accept": "application/json",
         "Content-Type": "application/x-www-form-urlencoded",
-        "Referer": "https://heroku.com"
+        "Referer": "https://heroku.com",
+        "Is-Multipart": jsonEncode(true),
+        "Identity-Token": Session.identityToken
       })
       ..fields.addAll(arguments)
       ..files.addAll(multiPartFiles);
 
-    print("Large post request fields: " + request.fields.toString());
-
-    print("Large Request: " + request.toString());
-
     http.StreamedResponse streamedResponse = await request.send();
     http.Response response = await http.Response.fromStream(streamedResponse);
-    print("Result: ${response.statusCode}");
+
     return response.body;
   }
-}
-
-class ServerResponse {
-  int statusCode;
-  bool result;
-  String message;
-  var data;
-  ServerResponse.all(this.statusCode, this.result, this.message, this.data);
 }
