@@ -81,7 +81,7 @@ class _MarkerInterfaceState extends State<MarkerInterface> {
               child: IconButton(
                 icon: const Icon(
                   Icons.notes,
-                  color: Utility.tertiaryColor,
+                  color: Utility.secondaryColor,
                 ),
                 onPressed: displayMarkerWindow,
               ),
@@ -100,7 +100,7 @@ class _MarkerInterfaceState extends State<MarkerInterface> {
               child: IconButton(
                 icon: const Icon(
                   Icons.open_in_new,
-                  color: Utility.tertiaryColor,
+                  color: Utility.secondaryColor,
                 ),
                 onPressed: openThreadPage,
               ),
@@ -119,7 +119,7 @@ class _MarkerInterfaceState extends State<MarkerInterface> {
               child: IconButton(
                 icon: const Icon(
                   Icons.close,
-                  color: Utility.tertiaryColor,
+                  color: Utility.secondaryColor,
                 ),
                 onPressed: hideMarkerInterface,
               ),

@@ -42,7 +42,7 @@ class _MarkerWindowState extends State<MarkerWindow> {
         width: widget._width,
         height: widget._height,
         decoration: const BoxDecoration(
-          color: Utility.primaryColorTranslucent,
+          color: Utility.primaryColor,
           borderRadius: BorderRadius.all(
             Radius.circular(5),
           ),
@@ -59,7 +59,7 @@ class _MarkerWindowState extends State<MarkerWindow> {
                       padding: EdgeInsets.fromLTRB(4, 4, 4, 4),
                       child: Icon(
                         Icons.account_box,
-                        color: Utility.tertiaryColor,
+                        color: Utility.secondaryColor,
                       ),
                     ),
                     Padding(
@@ -67,7 +67,7 @@ class _MarkerWindowState extends State<MarkerWindow> {
                       child: Text(
                         widget._threadMapMarker.creator.alias,
                         style: const TextStyle(
-                          color: Utility.tertiaryColor,
+                          color: Utility.secondaryColor,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -79,7 +79,7 @@ class _MarkerWindowState extends State<MarkerWindow> {
                   child: Container(
                     decoration: BoxDecoration(
                       border: Border.all(width: 0),
-                      color: Utility.primaryColorTranslucent,
+                      color: Utility.primaryColor,
                       borderRadius: const BorderRadius.all(
                         Radius.circular(5),
                       ),
@@ -87,7 +87,7 @@ class _MarkerWindowState extends State<MarkerWindow> {
                     child: IconButton(
                       icon: const Icon(
                         Icons.close,
-                        color: Utility.tertiaryColor,
+                        color: Utility.secondaryColor,
                       ),
                       onPressed: hideMarkerWindow,
                     ),
@@ -102,7 +102,7 @@ class _MarkerWindowState extends State<MarkerWindow> {
                 child: Text(
                   widget._threadMapMarker.markerId,
                   style: const TextStyle(
-                    color: Utility.tertiaryColor,
+                    color: Utility.secondaryColor,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -115,7 +115,7 @@ class _MarkerWindowState extends State<MarkerWindow> {
                 child: Text(
                   widget._threadMapMarker.description,
                   style: const TextStyle(
-                    color: Utility.tertiaryColor,
+                    color: Utility.secondaryColor,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

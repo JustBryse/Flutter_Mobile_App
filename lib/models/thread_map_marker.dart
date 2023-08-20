@@ -5,6 +5,8 @@ import 'package:cao_prototype/models/user.dart';
 import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/server.dart';
 
+import '../support/time_utility.dart';
+
 class ThreadMapMarker {
   int _id = -1;
   String _markerId = "";
@@ -87,6 +89,102 @@ class ThreadMapMarker {
     return toMap().toString();
   }
 
+  // This function sends a GET request for map markers
+  static Future<QueryResult> getFilteredThreadMapMarkers(
+    List<int> threadMapMarkerIds,
+    int universityId,
+    double distance,
+    DateTime lowerDate,
+    int markerCountLimit,
+    bool includeMarkerCreator,
+  ) async {
+    QueryResult qr = QueryResult();
+    try {
+      String lowerDateFormatted = TimeUtility.getIsoDateTime(lowerDate);
+      Map<String, String> arguments = {
+        "thread_marker_ids": jsonEncode(threadMapMarkerIds),
+        "university_id": jsonEncode(universityId),
+        "lower_date": lowerDateFormatted,
+        "distance": jsonEncode(distance),
+        "include_creator": jsonEncode(includeMarkerCreator),
+        "marker_count_limit": jsonEncode(markerCountLimit)
+      };
+      /* One of the two http response wrapper functions is selected here because the http response will be handled differently 
+      depending on whether the map-marker-creator information is requested in addition to the map marker data. */
+      if (includeMarkerCreator) {
+        qr = await _getFilteredThreadMapMarkersWithCreator(arguments);
+      } else {
+        qr = await _getFilteredThreadMapMarkersWithoutCreator(arguments);
+      }
+    } catch (e) {
+      qr.message = "Error in ThreadMapMarker.getFilteredThreadMapMarkers(): $e";
+    }
+    return qr;
+  }
+
+  // wrapper function used by getFilteredThreadMapMarkers()
+  static Future<QueryResult> _getFilteredThreadMapMarkersWithCreator(
+      Map<String, String> arguments) async {
+    QueryResult qr = QueryResult();
+    try {
+      var response = await Server.submitGetRequest(
+          arguments, "fetch/filtered_thread_markers");
+      var fields = jsonDecode(response);
+      qr.result = fields["result"];
+      qr.message = fields["message"];
+
+      // if something went wrong then exit here
+      if (qr.result == false) {
+        return qr;
+      }
+
+      List<ThreadMapMarker> threadMapMarkers = List.empty(growable: true);
+
+      for (var mm in fields["map_markers"]) {
+        // get creator data
+        User creator = User.all(
+          mm["creator"]["id"],
+          mm["creator"]["email"],
+          mm["creator"]["password"],
+          mm["creator"]["alias"],
+        );
+
+        // get map marker data
+        ThreadMapMarker threadMapMarker = ThreadMapMarker.fetchWithCreator(
+          mm["id"],
+          mm["marker_id"],
+          mm["icon"],
+          double.parse(mm["latitude"].toString()),
+          double.parse(mm["longitude"].toString()),
+          mm["description"],
+          mm["thread_id"],
+          creator,
+        );
+
+        threadMapMarkers.add(threadMapMarker);
+      }
+
+      qr.data = threadMapMarkers;
+    } catch (e) {
+      qr.message =
+          "Error in ThreadMapMarker._getFilteredThreadMapMarkersWithCreator(): $e";
+      qr.result = false;
+    }
+
+    return qr;
+  }
+
+  // wrapper function used by getFilteredThreadMapMarkers()
+  static Future<QueryResult> _getFilteredThreadMapMarkersWithoutCreator(
+      Map<String, String> arguments) async {
+    QueryResult qr = QueryResult();
+    try {} catch (e) {
+      qr.message =
+          "Error in ThreadMapMarker._getFilteredThreadMapMarkersWithoutCreator(): $e";
+    }
+    return qr;
+  }
+
   static Future<QueryResult> getThreadMapMarkers(
       int markerCountLimit, bool includeMarkerCreator) async {
     QueryResult qr = QueryResult();
@@ -106,54 +204,55 @@ class ThreadMapMarker {
   static Future<QueryResult> _getThreadMapMarkersWithCreator(
       int markerCountLimit) async {
     QueryResult qr = QueryResult();
-    //try {
-    Map<String, String> arguments = {
-      "include_creator": true.toString(),
-      "marker_count_limit": markerCountLimit.toString()
-    };
+    try {
+      Map<String, String> arguments = {
+        "include_creator": true.toString(),
+        "marker_count_limit": markerCountLimit.toString()
+      };
 
-    var response =
-        await Server.submitGetRequest(arguments, "fetch/thread_markers");
-    var fields = jsonDecode(response);
-    qr.result = fields["result"];
-    qr.message = fields["message"];
+      var response =
+          await Server.submitGetRequest(arguments, "fetch/thread_markers");
+      var fields = jsonDecode(response);
+      qr.result = fields["result"];
+      qr.message = fields["message"];
 
-    // if something went wrong then exit here
-    if (qr.result == false) {
-      return qr;
+      // if something went wrong then exit here
+      if (qr.result == false) {
+        return qr;
+      }
+
+      List<ThreadMapMarker> threadMapMarkers = List.empty(growable: true);
+
+      for (var mm in fields["map_markers"]) {
+        // get creator data
+        User creator = User.all(
+          mm["creator"]["id"],
+          mm["creator"]["email"],
+          mm["creator"]["password"],
+          mm["creator"]["alias"],
+        );
+
+        // get map marker data
+        ThreadMapMarker threadMapMarker = ThreadMapMarker.fetchWithCreator(
+          mm["id"],
+          mm["marker_id"],
+          mm["icon"],
+          double.parse(mm["latitude"].toString()),
+          double.parse(mm["longitude"].toString()),
+          mm["description"],
+          mm["thread_id"],
+          creator,
+        );
+
+        threadMapMarkers.add(threadMapMarker);
+      }
+
+      qr.data = threadMapMarkers;
+    } catch (e) {
+      qr.message =
+          "Error in ThreadMapMarker._getThreadMapMarkersWithCreator():$e";
+      qr.result = false;
     }
-
-    List<ThreadMapMarker> threadMapMarkers = List.empty(growable: true);
-
-    for (var mm in fields["map_markers"]) {
-      // get creator data
-      User creator = User.all(
-        mm["creator"]["id"],
-        mm["creator"]["email"],
-        mm["creator"]["password"],
-        mm["creator"]["alias"],
-      );
-
-      // get map marker data
-      ThreadMapMarker threadMapMarker = ThreadMapMarker.fetchWithCreator(
-        mm["id"],
-        mm["marker_id"],
-        mm["icon"],
-        double.parse(mm["latitude"].toString()),
-        double.parse(mm["longitude"].toString()),
-        mm["description"],
-        mm["thread_id"],
-        creator,
-      );
-
-      threadMapMarkers.add(threadMapMarker);
-    }
-
-    qr.data = threadMapMarkers;
-    //} catch (e) {
-    //qr.message ="Error in ThreadMapMarker._getThreadMapMarkersWithCreator():$e";
-    //qr.result = false;
-    //}
 
     return qr;
   }

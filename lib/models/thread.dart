@@ -172,6 +172,8 @@ class Thread {
       "has_thread_marker": hasThreadMapMarker.toString()
     };
 
+    print(arguments);
+
     try {
       var response = await Server.submitThreadPostRequest(
           arguments, thread.threadMediaList, "create/thread");

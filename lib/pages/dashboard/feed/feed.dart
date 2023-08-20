@@ -30,7 +30,7 @@ class _DashboardFeedState extends State<DashboardFeed> {
 
   List<int> filteredUniversityIds = List.empty(growable: true);
   DateTime filteredLowerDate = DateTime(2020, 1, 1, 0, 0, 0);
-  Duration selectedThreadAge = const Duration(days: 1);
+  Duration selectedThreadAge = Duration.zero;
 
   bool isRefreshingThreads = false;
   bool isLoadingMoreThreads = false;
