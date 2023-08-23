@@ -539,7 +539,7 @@ class _DashboardMapState extends State<DashboardMap> {
                                 child: Slider(
                                   label: maxMarkerDistance.toString(),
                                   min: 0.1,
-                                  max: 5,
+                                  max: 2,
                                   value: maxMarkerDistance,
                                   onChanged: setMaximumMarkerDistance,
                                   activeColor: Utility.secondaryColor,
