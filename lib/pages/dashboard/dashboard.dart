@@ -2,6 +2,7 @@ import 'package:cao_prototype/pages/dashboard/bridge/bridge.dart';
 import 'package:cao_prototype/pages/dashboard/feed/feed.dart';
 import 'package:cao_prototype/pages/dashboard/hub.dart';
 import 'package:cao_prototype/pages/dashboard/map/map.dart';
+import 'package:cao_prototype/pages/dashboard/profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
 
@@ -33,6 +34,15 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void navigateToHub() {}
 
+  void navigateToProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const DashboardProfile(),
+      ),
+    );
+  }
+
   void navigateToMap() {
     Navigator.push(
       context,
@@ -47,6 +57,15 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       backgroundColor: Utility.tertiaryColor,
       appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: navigateToProfile,
+            icon: const Icon(
+              Icons.account_circle,
+              color: Utility.secondaryColor,
+            ),
+          ),
+        ],
         backgroundColor: Utility.primaryColor,
         title: const Text(
           "Dashboard",
