@@ -3,6 +3,8 @@ import 'package:cao_prototype/pages/dashboard/feed/feed.dart';
 import 'package:cao_prototype/pages/dashboard/hub.dart';
 import 'package:cao_prototype/pages/dashboard/map/map.dart';
 import 'package:cao_prototype/pages/dashboard/profile/profile.dart';
+import 'package:cao_prototype/tests/test_management.dart';
+import 'package:cao_prototype/tests/unit_test_dashboard_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
 
@@ -52,12 +54,30 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  // allows the user to visit the unit testing dashboard where unit tests can be run (only accessible in developer mode)
+  void navigateToUnitTestDashboardPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const UnitTestDashboardPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Utility.tertiaryColor,
       appBar: AppBar(
         actions: [
+          if (TestManagement.isDeveloperModeEnabled)
+            IconButton(
+              onPressed: navigateToUnitTestDashboardPage,
+              icon: const Icon(
+                Icons.developer_board,
+                color: Utility.secondaryColor,
+              ),
+            ),
           IconButton(
             onPressed: navigateToProfile,
             icon: const Icon(

@@ -10,7 +10,7 @@ class Organization extends User {
 
   Organization.all(
       int id, String email, String password, String alias, String name)
-      : super.all(id, email, password, alias) {
+      : super.noTimeStamps(id, email, password, alias) {
     _name = name;
   }
 

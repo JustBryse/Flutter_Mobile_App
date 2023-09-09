@@ -13,7 +13,7 @@ class Individual extends User {
 
   Individual.all(int id, String email, String password, String alias,
       String firstName, String lastName)
-      : super.all(id, email, password, alias) {
+      : super.noTimeStamps(id, email, password, alias) {
     _firstName = firstName;
     _lastName = lastName;
   }

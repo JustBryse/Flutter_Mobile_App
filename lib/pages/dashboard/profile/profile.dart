@@ -74,10 +74,9 @@ class _DashboardProfileState extends State<DashboardProfile> {
                   ],
                 ),
               ),
-              NotificationWidget(type: NotificationType.FRIEND_REQUEST),
-              NotificationWidget(type: NotificationType.FRIEND_REQUEST),
-              NotificationWidget(type: NotificationType.FRIEND_REQUEST),
-              NotificationWidget(type: NotificationType.MISCELLANEOUS),
+              NotificationWidget(
+                title: "Example",
+              ),
             ],
           ),
         ],

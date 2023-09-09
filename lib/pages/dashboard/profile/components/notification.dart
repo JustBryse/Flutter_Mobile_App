@@ -1,14 +1,17 @@
+import 'package:cao_prototype/support/utility.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 
-enum NotificationType { FRIEND_REQUEST, MISCELLANEOUS }
-
 class NotificationWidget extends StatefulWidget {
-  NotificationType _notificationType = NotificationType.MISCELLANEOUS;
-  NotificationType get notificationType => _notificationType;
-  NotificationWidget({Key? key, required NotificationType type})
-      : super(key: key) {
-    _notificationType = type;
+  String _title = "";
+  String get title => _title;
+
+  NotificationWidget({
+    Key? key,
+    required String title,
+  }) : super(key: key) {
+    _title = title;
   }
 
   @override

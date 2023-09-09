@@ -142,7 +142,7 @@ class ThreadMapMarker {
 
       for (var mm in fields["map_markers"]) {
         // get creator data
-        User creator = User.all(
+        User creator = User.noTimeStamps(
           mm["creator"]["id"],
           mm["creator"]["email"],
           mm["creator"]["password"],
@@ -225,7 +225,7 @@ class ThreadMapMarker {
 
       for (var mm in fields["map_markers"]) {
         // get creator data
-        User creator = User.all(
+        User creator = User.noTimeStamps(
           mm["creator"]["id"],
           mm["creator"]["email"],
           mm["creator"]["password"],
