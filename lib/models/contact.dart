@@ -100,8 +100,8 @@ class Contact extends BasicContact {
     return {
       "contactor": contactor.toMap(),
       "contacted": contacted.toMap(),
-      "insert_date": insertDate.toIso8601String(),
-      "edit_date": editDate.toIso8601String(),
+      "insert_date": TimeUtility.getIsoDateTime(insertDate),
+      "edit_date": TimeUtility.getIsoDateTime(editDate),
     };
   }
 
@@ -111,10 +111,12 @@ class Contact extends BasicContact {
   }
 
   // get the contacts of the user defined by the "userId" argument
-  static Future<QueryResult> getContacts(int userId) async {
+  static Future<QueryResult> getContacts() async {
     QueryResult qr = QueryResult();
     try {
-      Map<String, String> arguments = {"user_id": userId.toString()};
+      Map<String, String> arguments = {
+        "user_id": Session.currentUser.id.toString()
+      };
       var response = await Server.submitGetRequest(
         arguments,
         "fetch/user_contacts",

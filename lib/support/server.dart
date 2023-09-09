@@ -14,7 +14,6 @@ abstract class Server {
 
   static submitGetRequest(Map<String, dynamic> arguments, String path) async {
     arguments["user_id"] = jsonEncode(Session.currentUser.id);
-    //arguments["identity_token"] = Session.identityToken;
 
     var client = http.Client();
     Uri uri = Uri.https(url, path, arguments);
@@ -29,8 +28,6 @@ abstract class Server {
 
   static submitPostRequest(Map<String, dynamic> arguments, String path) async {
     arguments["user_id"] = Session.currentUser.id;
-    //arguments["identity_token"] = Session.identityToken;
-    print("Arguments: " + jsonEncode(arguments));
 
     var client = http.Client();
 
@@ -57,9 +54,7 @@ abstract class Server {
     List<ThreadMedia> threadMedia,
     String path,
   ) async {
-    //arguments["is_multipart_request"] = true.toString();
     arguments["user_id"] = jsonEncode(Session.currentUser.id);
-    //arguments["identity_token"] = Session.identityToken;
 
     Uri uri = Uri.https(url, path);
     print(arguments);

@@ -1,5 +1,6 @@
 import 'package:cao_prototype/support/utility.dart';
 import 'package:cao_prototype/tests/contact.dart';
+import 'package:cao_prototype/tests/friend.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
@@ -21,6 +22,15 @@ class _UnitTestDashboardPageState extends State<UnitTestDashboardPage> {
     );
   }
 
+  void navigateToFriendTestPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const FriendUnitTestPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,6 +47,15 @@ class _UnitTestDashboardPageState extends State<UnitTestDashboardPage> {
             onPressed: navigateToContactTestPage,
             child: const Text(
               "Contact Unit Tests",
+              style: TextStyle(
+                color: Utility.secondaryColor,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: navigateToFriendTestPage,
+            child: const Text(
+              "Friend Unit Tests",
               style: TextStyle(
                 color: Utility.secondaryColor,
               ),

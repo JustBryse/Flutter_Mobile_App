@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cao_prototype/support/queries.dart';
+import 'package:cao_prototype/support/time_utility.dart';
 import 'package:crypto/crypto.dart';
 
 // individuals are usually students, organizations are typically businesses or sponsors, and associations are campus clubs
@@ -52,8 +53,8 @@ class User {
       "email": _email,
       "password": _password,
       "alias": _alias,
-      "insert_date": _insertDate.toIso8601String(),
-      "edit_date": _editDate.toIso8601String(),
+      "insert_date": TimeUtility.getIsoDateTime(insertDate),
+      "edit_date": TimeUtility.getIsoDateTime(editDate),
     };
   }
 

@@ -1,20 +1,20 @@
-import 'package:cao_prototype/models/contact.dart';
+import 'package:cao_prototype/models/friend.dart';
 import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 
-class ContactUnitTestPage extends StatefulWidget {
-  const ContactUnitTestPage({super.key});
+class FriendUnitTestPage extends StatefulWidget {
+  const FriendUnitTestPage({super.key});
 
   @override
-  State<ContactUnitTestPage> createState() => _ContactUnitTestPageState();
+  State<FriendUnitTestPage> createState() => _FriendUnitTestPageState();
 }
 
-class _ContactUnitTestPageState extends State<ContactUnitTestPage> {
-  void getContacts() async {
-    QueryResult qr = await Contact.getContacts();
+class _FriendUnitTestPageState extends State<FriendUnitTestPage> {
+  void getFriends() async {
+    QueryResult qr = await Friend.getFriends();
 
     if (qr.result == false) {
       Utility.displayAlertMessage(
@@ -28,8 +28,8 @@ class _ContactUnitTestPageState extends State<ContactUnitTestPage> {
       return;
     }
 
-    for (Contact c in qr.data) {
-      print(c.toString() + "\n");
+    for (Friend f in qr.data) {
+      print(f.toString() + "\n");
     }
 
     Utility.displayAlertMessage(context, "Success Result", "");
@@ -41,7 +41,7 @@ class _ContactUnitTestPageState extends State<ContactUnitTestPage> {
       backgroundColor: Utility.tertiaryColor,
       appBar: AppBar(
           title: const Text(
-        "Contact Unit Test Page",
+        "Friend Unit Test Page",
         style: TextStyle(
           color: Utility.secondaryColor,
         ),
@@ -51,9 +51,9 @@ class _ContactUnitTestPageState extends State<ContactUnitTestPage> {
         child: Container(
           color: Colors.blue,
           child: TextButton(
-            onPressed: getContacts,
+            onPressed: getFriends,
             child: const Text(
-              "Get Contacts",
+              "Get Friends",
               style: TextStyle(
                 color: Utility.secondaryColor,
               ),
