@@ -38,14 +38,16 @@ class _ContactUnitTestPageState extends State<ContactUnitTestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Utility.tertiaryColor,
+      backgroundColor: Colors.blue,
       appBar: AppBar(
-          title: const Text(
-        "Contact Unit Test Page",
-        style: TextStyle(
-          color: Utility.secondaryColor,
+        title: const Text(
+          "Contact Unit Test Page",
+          style: TextStyle(
+            color: Utility.secondaryColor,
+          ),
         ),
-      )),
+        backgroundColor: Colors.orange,
+      ),
       body: Align(
         alignment: Alignment.center,
         child: Container(

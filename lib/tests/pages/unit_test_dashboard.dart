@@ -1,6 +1,7 @@
 import 'package:cao_prototype/support/utility.dart';
-import 'package:cao_prototype/tests/contact.dart';
-import 'package:cao_prototype/tests/friend.dart';
+import 'package:cao_prototype/tests/pages/contact.dart';
+import 'package:cao_prototype/tests/pages/friend.dart';
+import 'package:cao_prototype/tests/pages/friend_request.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
@@ -31,15 +32,25 @@ class _UnitTestDashboardPageState extends State<UnitTestDashboardPage> {
     );
   }
 
+  void navigateToFriendRequestTestPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const FriendRequestUnitTestPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Utility.tertiaryColor,
+      backgroundColor: Colors.blue,
       appBar: AppBar(
         title: const Text(
           "Unit Test Dashboard",
           style: TextStyle(color: Utility.secondaryColor),
         ),
+        backgroundColor: Colors.orange,
       ),
       body: ListView(
         children: [
@@ -52,12 +63,27 @@ class _UnitTestDashboardPageState extends State<UnitTestDashboardPage> {
               ),
             ),
           ),
-          TextButton(
-            onPressed: navigateToFriendTestPage,
-            child: const Text(
-              "Friend Unit Tests",
-              style: TextStyle(
-                color: Utility.secondaryColor,
+          Padding(
+            padding: const EdgeInsets.all(4),
+            child: TextButton(
+              onPressed: navigateToFriendTestPage,
+              child: const Text(
+                "Friend Unit Tests",
+                style: TextStyle(
+                  color: Utility.secondaryColor,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4),
+            child: TextButton(
+              onPressed: navigateToFriendRequestTestPage,
+              child: const Text(
+                "FriendRequest Unit Tests",
+                style: TextStyle(
+                  color: Utility.secondaryColor,
+                ),
               ),
             ),
           ),

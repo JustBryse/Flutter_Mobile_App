@@ -4,7 +4,7 @@ import 'package:cao_prototype/pages/dashboard/hub.dart';
 import 'package:cao_prototype/pages/dashboard/map/map.dart';
 import 'package:cao_prototype/pages/dashboard/profile/profile.dart';
 import 'package:cao_prototype/tests/test_management.dart';
-import 'package:cao_prototype/tests/unit_test_dashboard_page.dart';
+import 'package:cao_prototype/tests/pages/unit_test_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:cao_prototype/support/utility.dart';
 
@@ -74,8 +74,8 @@ class _DashboardPageState extends State<DashboardPage> {
             IconButton(
               onPressed: navigateToUnitTestDashboardPage,
               icon: const Icon(
-                Icons.developer_board,
-                color: Utility.secondaryColor,
+                Icons.work_rounded,
+                color: Colors.orange,
               ),
             ),
           IconButton(

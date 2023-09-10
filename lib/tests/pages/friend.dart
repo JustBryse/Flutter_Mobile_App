@@ -38,14 +38,16 @@ class _FriendUnitTestPageState extends State<FriendUnitTestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Utility.tertiaryColor,
+      backgroundColor: Colors.blue,
       appBar: AppBar(
-          title: const Text(
-        "Friend Unit Test Page",
-        style: TextStyle(
-          color: Utility.secondaryColor,
+        title: const Text(
+          "Friend Unit Test Page",
+          style: TextStyle(
+            color: Utility.secondaryColor,
+          ),
         ),
-      )),
+        backgroundColor: Colors.orange,
+      ),
       body: Align(
         alignment: Alignment.center,
         child: Container(
