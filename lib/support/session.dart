@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:core';
+import 'package:cao_prototype/firebase/firebase_api.dart';
 import "package:cao_prototype/models/user.dart";
 import 'package:cao_prototype/support/queries.dart';
+import 'package:cao_prototype/support/utility.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/individual.dart';
@@ -136,7 +138,13 @@ abstract class Session {
   ) async {
     QueryResult qr = QueryResult();
 
-    Map<String, String> arguments = {"email": email, "password": password};
+    // Pass device data so firebase knows which device the user logged into last. This will help with knowing where to send fcm data.
+    Map<String, String> arguments = {
+      "email": email,
+      "password": password,
+      "device_name": await Utility.getDeviceName(),
+      "fcm_device_token": await FirebaseApi.singleton.getDeviceToken()
+    };
 
     try {
       var response =

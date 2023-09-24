@@ -1,8 +1,11 @@
+import 'package:cao_prototype/firebase/firebase_api.dart';
 import 'package:cao_prototype/models/user.dart';
 import 'package:cao_prototype/models/interest.dart';
 import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/server.dart';
 import 'dart:convert';
+
+import 'package:cao_prototype/support/utility.dart';
 
 class Individual extends User {
   String _firstName = "";

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "492104682087",
+    "project_id": "cao-demo",
+    "storage_bucket": "cao-demo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:492104682087:android:ac91888531209e8b0222c2",
+        "android_client_info": {
+          "package_name": "com.example.cao_prototype"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD41qDjgqrTgc3VJfV2fcUijfLE1HPdCao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
