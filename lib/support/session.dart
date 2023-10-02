@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:core';
 import 'package:cao_prototype/firebase/firebase_api.dart';
 import "package:cao_prototype/models/user.dart";
+import 'package:cao_prototype/notifications/notification_database.dart';
+import 'package:cao_prototype/notifications/notification_manager.dart';
 import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:sqflite/sqflite.dart';
@@ -33,7 +35,6 @@ abstract class Session {
       List<Map<String, Object?>> results = await db.rawQuery(query);
       // return true if there are locally saved user credentials
       result = results.isNotEmpty;
-      print("Local Credentials: " + results.toString());
     } catch (e) {
       print("Error in Session.localUserCredentialTableExists(): $e");
       result = false;
@@ -151,7 +152,6 @@ abstract class Session {
           await Server.submitGetRequest(arguments, loginRoutes[route]!);
       Map<String, dynamic> fields = jsonDecode(response);
       qr.result = fields["result"];
-      print(fields);
 
       // exit if the server failed to login the user
       if (qr.result == false) {
@@ -189,11 +189,20 @@ abstract class Session {
           Session.currentUser.password,
         );
       }
+
+      // initialize notification database if it does not already exist
+      if (await NotificationDatabase.exists() == false) {
+        QueryResult ndqr =
+            await NotificationDatabase.createLocalNotificationDatabase();
+        print("NDQR: " + ndqr.toString());
+      }
     } catch (e) {
       print("Error in Session.login(): $e");
       qr.result = false;
     }
-    print(qr);
+
+    // make sure there is a file for saving background notifications
+
     return qr;
   }
 
@@ -206,7 +215,6 @@ abstract class Session {
       qr.result = false;
       qr.message =
           "Failed to read locally saved credentials. Please manually sign in.";
-      print(qr);
       return qr;
     }
 
@@ -216,8 +224,6 @@ abstract class Session {
         credentials["EMAIL"].toString(),
         credentials["PASSWORD"].toString(),
       );
-
-      print("2A " + qr.toString());
 
       if (qr.result == false) {
         qr.message = "Failed to authenticate user. Please manually sign in.";

@@ -44,6 +44,7 @@ dependencies:
   firebase_messaging: ^14.6.7
   device_info_plus: ^9.0.3
   flutter_launcher_icons: ^0.13.1
+  path_provider: 
   
   flutter:
     sdk: flutter
@@ -52,10 +53,13 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-flutter_icons:
+flutter_launcher_icons:
     android: true
     ios: true
-    image_path: "assets/application_icon/ApplicationIcon.png"
+    image_path: "assets/application_icon/ic_launcher.png"
+    remove_alpha_ios: true
+    adaptive_icon_background: "assets/application_icon/ic_launcher_adaptive_back.png"
+    adaptive_icon_foreground: "assets/application_icon/ic_launcher_adaptive_fore.png"
 
 dev_dependencies:
   flutter_test:

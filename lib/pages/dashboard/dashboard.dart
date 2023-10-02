@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cao_prototype/firebase/firebase_api.dart';
+import 'package:cao_prototype/notifications/models/unactionable_notification.dart';
 import 'package:cao_prototype/pages/dashboard/bridge/bridge.dart';
 import 'package:cao_prototype/pages/dashboard/components/appbar_notification_button.dart';
 import 'package:cao_prototype/pages/dashboard/components/appbar_notification_menu.dart';
@@ -10,7 +11,7 @@ import 'package:cao_prototype/pages/dashboard/feed/feed.dart';
 import 'package:cao_prototype/pages/dashboard/hub.dart';
 import 'package:cao_prototype/pages/dashboard/map/map.dart';
 import 'package:cao_prototype/pages/dashboard/profile/profile.dart';
-import 'package:cao_prototype/support/notification_manager.dart';
+import 'package:cao_prototype/notifications/notification_manager.dart';
 import 'package:cao_prototype/tests/test_management.dart';
 import 'package:cao_prototype/tests/pages/unit_test_dashboard.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -37,7 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
       MaterialPageRoute(
         builder: (_) => const DashboardBridge(),
       ),
-    ).then((value) => updateUnactionableNotificationWidgets());
+    ).then((value) => refreshUnactionableNotificationWidgets());
   }
 
   void navigateToFeed() {
@@ -46,7 +47,7 @@ class _DashboardPageState extends State<DashboardPage> {
       MaterialPageRoute(
         builder: (_) => const DashboardFeed(),
       ),
-    ).then((value) => updateUnactionableNotificationWidgets());
+    ).then((value) => refreshUnactionableNotificationWidgets());
   }
 
   void navigateToProfile() {
@@ -55,7 +56,7 @@ class _DashboardPageState extends State<DashboardPage> {
       MaterialPageRoute(
         builder: (_) => const DashboardProfile(),
       ),
-    ).then((value) => updateUnactionableNotificationWidgets());
+    ).then((value) => refreshUnactionableNotificationWidgets());
   }
 
   void navigateToMap() {
@@ -64,7 +65,7 @@ class _DashboardPageState extends State<DashboardPage> {
       MaterialPageRoute(
         builder: (_) => const DashboardMap(),
       ),
-    ).then((value) => updateUnactionableNotificationWidgets());
+    ).then((value) => refreshUnactionableNotificationWidgets());
   }
 
   // allows the user to visit the unit testing dashboard where unit tests can be run (only accessible in developer mode)
@@ -77,42 +78,36 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  /* This is called by the appbar notification button when the page state resumes (when the app opens on this page).
+     This function refreshes the currently displayed notification widgets with the current ones in the unactionableNotifications list. */
+  void refreshUnactionableNotificationWidgets() {
+    unactionableNotificationWidgets.clear();
+
+    for (UnactionableNotification un
+        in NotificationManager.unactionableNotifications) {
+      unactionableNotificationWidgets.add(
+        UnactionableNotificationWidget(
+          un: un,
+          width: MediaQuery.of(context).size.width * 0.9,
+          deleteNotification: deleteUnactionableNotificationWidget,
+        ),
+      );
+    }
+    setState(() {
+      unactionableNotificationWidgets;
+    });
+  }
+
   // Firebase remote message handler. This function is actually called by the appbar account button widget on firebase events
   void handleForegroundFirebaseMessage(RemoteMessage rm) {
     if (rm.notification == null) {
       return;
     }
 
-    print("Dashboard Firebase Handler -> " + rm.data.toString());
-
-    Map arguments = FirebaseApi.getDecodedNotificationArguments(rm);
-
-    NotificationCodeKeys notificationKey =
-        NotificationCodes.getCodeKey(arguments["notification_code"]);
-
-    // update the menu notification icon states accordingly
-    // actionable notification
-    if (notificationKey == NotificationCodeKeys.FRIEND_REQUEST) {
-      setState(() {
-        NotificationManager.friendRequestNotificationIconEnabled = true;
-      });
-    }
-    // actionable notification
-    else if (notificationKey == NotificationCodeKeys.ASSOCIATION_INVITATION) {
-      setState(() {
-        NotificationManager.associationInvitationNotificationIconEnabled = true;
-      });
-    }
-    // unactionable notifications
-    else {
-      UnactionableNotification un = UnactionableNotification.all(
-        notificationKey,
-        rm.notification!.title.toString(),
-        rm.notification!.body.toString(),
-      );
-
-      NotificationManager.unactionableNotifications.add(un);
-
+    UnactionableNotification? un =
+        NotificationManager.handleForegroundNotification(rm);
+    // add unactionable notifications to the widget list
+    if (un != null) {
       UnactionableNotificationWidget unw = UnactionableNotificationWidget(
         un: un,
         width: MediaQuery.of(context).size.width * 0.9,
@@ -121,8 +116,28 @@ class _DashboardPageState extends State<DashboardPage> {
 
       setState(() {
         unactionableNotificationWidgets.add(unw);
+        NotificationManager.friendRequestNotificationIconEnabled;
+        NotificationManager.associationInvitationNotificationIconEnabled;
       });
     }
+  }
+
+  /* Called from the appbar notification button when returning from the background state. If actionable notifications were recieved
+  while in the background state, the corrosponding notification code keys will be sent here and the associated menu icons will be 
+  enabled to tell the user that there are pending actionable notifications. */
+  void enableActionableNotificationMenuIcons(List<NotificationCodeKeys> ncks) {
+    for (NotificationCodeKeys nck in ncks) {
+      if (nck == NotificationCodeKeys.FRIEND_REQUEST) {
+        NotificationManager.friendRequestNotificationIconEnabled = true;
+      } else if (nck == NotificationCodeKeys.ASSOCIATION_INVITATION) {
+        NotificationManager.associationInvitationNotificationIconEnabled = true;
+      }
+    }
+
+    setState(() {
+      NotificationManager.friendRequestNotificationIconEnabled;
+      NotificationManager.associationInvitationNotificationIconEnabled;
+    });
   }
 
   void toggleProfileMenu(bool flag) {
@@ -153,27 +168,6 @@ class _DashboardPageState extends State<DashboardPage> {
     return true;
   }
 
-  /* this function is called when returning from a previous page to synchronize the notifications on this page with the current
-     notifications in the notification manager */
-  void updateUnactionableNotificationWidgets() {
-    unactionableNotificationWidgets.clear();
-
-    for (UnactionableNotification un
-        in NotificationManager.unactionableNotifications) {
-      unactionableNotificationWidgets.add(
-        UnactionableNotificationWidget(
-          un: un,
-          width: MediaQuery.of(context).size.width * 0.9,
-          deleteNotification: deleteUnactionableNotificationWidget,
-        ),
-      );
-    }
-
-    setState(() {
-      unactionableNotificationWidgets;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -191,6 +185,10 @@ class _DashboardPageState extends State<DashboardPage> {
           AppBarNotificationButton(
             toggleProfileMenu: toggleProfileMenu,
             firebaseForegroundMessageHandler: handleForegroundFirebaseMessage,
+            refreshUnactionableNotificationWidgets:
+                refreshUnactionableNotificationWidgets,
+            enableActionableNotificationMenuIcons:
+                enableActionableNotificationMenuIcons,
           ),
         ],
         backgroundColor: Utility.primaryColor,

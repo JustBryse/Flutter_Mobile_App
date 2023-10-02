@@ -2,6 +2,7 @@ import 'package:cao_prototype/support/utility.dart';
 import 'package:cao_prototype/tests/pages/contact.dart';
 import 'package:cao_prototype/tests/pages/friend.dart';
 import 'package:cao_prototype/tests/pages/friend_request.dart';
+import 'package:cao_prototype/tests/pages/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
@@ -37,6 +38,15 @@ class _UnitTestDashboardPageState extends State<UnitTestDashboardPage> {
       context,
       MaterialPageRoute(
         builder: (_) => const FriendRequestUnitTestPage(),
+      ),
+    );
+  }
+
+  void navigateToNotificationTestPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const NotificationUnitTestPage(),
       ),
     );
   }
@@ -81,6 +91,18 @@ class _UnitTestDashboardPageState extends State<UnitTestDashboardPage> {
               onPressed: navigateToFriendRequestTestPage,
               child: const Text(
                 "FriendRequest Unit Tests",
+                style: TextStyle(
+                  color: Utility.secondaryColor,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4),
+            child: TextButton(
+              onPressed: navigateToNotificationTestPage,
+              child: const Text(
+                "Notification Database Unit Tests",
                 style: TextStyle(
                   color: Utility.secondaryColor,
                 ),

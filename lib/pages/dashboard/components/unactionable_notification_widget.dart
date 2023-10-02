@@ -1,4 +1,5 @@
-import 'package:cao_prototype/support/notification_manager.dart';
+import 'package:cao_prototype/notifications/models/unactionable_notification.dart';
+import 'package:cao_prototype/notifications/notification_manager.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';

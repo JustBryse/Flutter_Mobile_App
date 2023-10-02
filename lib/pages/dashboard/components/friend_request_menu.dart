@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cao_prototype/models/friend_request.dart';
 import 'package:cao_prototype/pages/dashboard/components/friend_request_widget.dart';
 import 'package:cao_prototype/pages/dashboard/components/unactionable_notification_widget.dart';
-import 'package:cao_prototype/support/notification_manager.dart';
+import 'package:cao_prototype/notifications/notification_manager.dart';
 import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:flutter/material.dart';

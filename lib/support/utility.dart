@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
@@ -52,5 +52,10 @@ abstract class Utility {
     }
 
     return deviceName;
+  }
+
+  static Future<String> getApplicationDocumentPath() async {
+    Directory applicationDirectory = await getApplicationDocumentsDirectory();
+    return applicationDirectory.path;
   }
 }
