@@ -7,6 +7,8 @@ abstract class Utility {
   static const Color primaryColor = Colors.black;
   static const Color primaryColorTranslucent = Color.fromARGB(128, 0, 0, 0);
   static const Color secondaryColor = Colors.white;
+  static const Color secondaryColorTranslucent =
+      Color.fromARGB(191, 255, 255, 255);
   static const Color tertiaryColor = Colors.grey;
   static const double titleFontSize = 40;
   static const double bodyFontSize = 12;

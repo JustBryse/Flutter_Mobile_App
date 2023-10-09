@@ -32,7 +32,7 @@ abstract class Server {
     var client = http.Client();
 
     Uri uri = Uri.https(url, path);
-
+    print("Arguments: " + arguments.toString());
     var response = await client.post(
       uri,
       body: jsonEncode(arguments),
@@ -44,7 +44,6 @@ abstract class Server {
         "Is-Multipart": jsonEncode(false),
       },
     );
-    print(response.body);
     return response.body;
   }
 
@@ -57,7 +56,6 @@ abstract class Server {
     arguments["user_id"] = jsonEncode(Session.currentUser.id);
 
     Uri uri = Uri.https(url, path);
-    print(arguments);
 
     int fileUploadSize = 0;
 

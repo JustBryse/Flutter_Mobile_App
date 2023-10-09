@@ -68,12 +68,33 @@ class _AppBarNotificationMenuState extends State<AppBarNotificationMenu> {
         FriendRequestWidget(
           fr: fr,
           width: widget.notificationWidth,
+          deleteWidget: deleteFriendRequestWidget,
         ),
       );
     }
 
     setState(() {
       friendRequests;
+      friendRequestWidgets;
+    });
+  }
+
+  // called from a friend request widget to delete itself upon the resolution of a friend request decision (accept/reject)
+  void deleteFriendRequestWidget(FriendRequest fr) {
+    int frwIndex = -1;
+    for (int i = 0; i < friendRequestWidgets.length; ++i) {
+      if (friendRequestWidgets[i].fr == fr) {
+        frwIndex = i;
+        break;
+      }
+    }
+
+    if (frwIndex > -1) {
+      friendRequestWidgets.removeAt(frwIndex);
+      friendRequests.remove(fr);
+    }
+
+    setState(() {
       friendRequestWidgets;
     });
   }

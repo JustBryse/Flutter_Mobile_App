@@ -43,9 +43,9 @@ class BasicFriendRequest {
   static Future<QueryResult> createFriendRequest(BasicFriendRequest bfr) async {
     QueryResult qr = QueryResult();
     try {
-      Map<String, String> arguments = {
-        "requester_id": bfr.requesterId.toString(),
-        "recipient_id": bfr.recipientId.toString(),
+      Map<String, dynamic> arguments = {
+        "requester_id": bfr.requesterId,
+        "recipient_id": bfr.recipientId,
       };
       var response = await Server.submitPostRequest(
         arguments,
@@ -68,9 +68,9 @@ class BasicFriendRequest {
   ) async {
     QueryResult qr = QueryResult();
     try {
-      Map<String, String> arguments = {
-        "requester_id": bfr.requesterId.toString(),
-        "recipient_id": bfr.recipientId.toString(),
+      Map<String, dynamic> arguments = {
+        "requester_id": bfr.requesterId,
+        "recipient_id": bfr.recipientId,
       };
       var response = await Server.submitPostRequest(
         arguments,
@@ -91,9 +91,9 @@ class BasicFriendRequest {
   static Future<QueryResult> acceptFriendRequest(BasicFriendRequest bfr) async {
     QueryResult qr = QueryResult();
     try {
-      Map<String, String> arguments = {
-        "requester_id": bfr.requesterId.toString(),
-        "recipient_id": bfr.recipientId.toString(),
+      Map<String, dynamic> arguments = {
+        "requester_id": bfr.requesterId,
+        "recipient_id": bfr.recipientId,
       };
       var response = await Server.submitPostRequest(
         arguments,
@@ -114,9 +114,9 @@ class BasicFriendRequest {
   static Future<QueryResult> rejectFriendRequest(BasicFriendRequest bfr) async {
     QueryResult qr = QueryResult();
     try {
-      Map<String, String> arguments = {
-        "requester_id": bfr.requesterId.toString(),
-        "recipient_id": bfr.recipientId.toString(),
+      Map<String, dynamic> arguments = {
+        "requester_id": bfr.requesterId,
+        "recipient_id": bfr.recipientId,
       };
       var response = await Server.submitPostRequest(
         arguments,
@@ -170,6 +170,20 @@ class FriendRequest extends BasicFriendRequest {
   String toString() {
     return toMap().toString();
   }
+
+  bool _equals(Object other) {
+    if (other is FriendRequest == false) {
+      return false;
+    }
+    FriendRequest fr = other as FriendRequest;
+    return requesterId == fr.requesterId && recipientId == fr.recipientId;
+  }
+
+  @override
+  bool operator ==(Object other) => _equals(other);
+  @override
+  int get hashCode =>
+      (requesterId.toString() + recipientId.toString()).hashCode;
 
   // fetches all the friend requests that the current user has received
   static Future<QueryResult> getRecipientFriendRequests() async {

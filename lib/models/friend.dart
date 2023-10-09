@@ -53,6 +53,8 @@ class Friend extends BasicFriend {
   User get friender => _friender;
   User get friended => _friended;
 
+  Friend.none() : super(-1, -1);
+
   Friend.fetch(
     User friender,
     User friended,
@@ -80,6 +82,19 @@ class Friend extends BasicFriend {
   String toString() {
     return toMap().toString();
   }
+
+  bool _equals(Object other) {
+    if (other is Friend == false) {
+      return false;
+    }
+    Friend f = other as Friend;
+    return friendedId == f.friendedId && frienderId == f.frienderId;
+  }
+
+  @override
+  bool operator ==(Object other) => _equals(other);
+  @override
+  int get hashCode => (friendedId.toString() + frienderId.toString()).hashCode;
 
   // gets the friends of the current user
   static Future<QueryResult> getFriends() async {

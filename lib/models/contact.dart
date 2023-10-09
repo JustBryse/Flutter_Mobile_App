@@ -5,7 +5,6 @@ import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/server.dart';
 import 'package:cao_prototype/support/session.dart';
 import 'package:cao_prototype/support/time_utility.dart';
-import 'package:path/path.dart';
 
 // BasicContact represents the contents of a single record in the USER_CONTACT table of the SQL database
 class BasicContact {
@@ -30,9 +29,9 @@ class BasicContact {
   static Future<QueryResult> createContact(BasicContact bc) async {
     QueryResult qr = QueryResult();
     try {
-      Map<String, String> arguments = {
-        "user_id": bc.contactorId.toString(),
-        "contact_id": bc.contactedId.toString()
+      Map<String, dynamic> arguments = {
+        "user_id": bc.contactorId,
+        "contact_id": bc.contactedId
       };
 
       var response = await Server.submitPostRequest(
@@ -55,9 +54,9 @@ class BasicContact {
   static Future<QueryResult> deleteContact(BasicContact bc) async {
     QueryResult qr = QueryResult();
     try {
-      Map<String, String> arguments = {
-        "user_id": bc.contactorId.toString(),
-        "contact_id": bc.contactedId.toString()
+      Map<String, dynamic> arguments = {
+        "user_id": bc.contactorId,
+        "contact_id": bc.contactedId
       };
 
       var response = await Server.submitPostRequest(
@@ -86,6 +85,8 @@ class Contact extends BasicContact {
   User get contactor => _contactor;
   User get contacted => _contacted;
 
+  Contact.none() : super(-1, -1);
+
   Contact.fetch(User contactor, User contacted, int contactLevel,
       DateTime insertDate, DateTime editDate)
       : super(contactor.id, contacted.id) {
@@ -109,6 +110,20 @@ class Contact extends BasicContact {
   String toString() {
     return toMap().toString();
   }
+
+  bool _equals(Object other) {
+    if (other is Contact == false) {
+      return false;
+    }
+    Contact c = other as Contact;
+    return contactorId == c.contactorId && contactedId == c.contactedId;
+  }
+
+  @override
+  bool operator ==(Object other) => _equals(other);
+  @override
+  int get hashCode =>
+      (contactorId.toString() + contactedId.toString()).hashCode;
 
   // get the contacts of the user defined by the "userId" argument
   static Future<QueryResult> getContacts() async {

@@ -1,4 +1,5 @@
 import 'package:cao_prototype/models/friend_request.dart';
+import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +13,18 @@ class FriendRequestWidget extends StatefulWidget {
   double _width = -1;
   double get width => _width;
 
-  FriendRequestWidget(
-      {Key? key, required FriendRequest fr, required double width})
-      : super(key: key) {
+  // Respond to the friend request (accept/reject). Informs the parent widget to remove this widget from the friend request menu
+  void Function(FriendRequest) _deleteWidget = (fr) => null;
+
+  FriendRequestWidget({
+    Key? key,
+    required FriendRequest fr,
+    required double width,
+    required void Function(FriendRequest) deleteWidget,
+  }) : super(key: key) {
     _width = width;
     _fr = fr;
+    _deleteWidget = deleteWidget;
   }
 
   @override
@@ -24,8 +32,44 @@ class FriendRequestWidget extends StatefulWidget {
 }
 
 class _FriendRequestWidgetState extends State<FriendRequestWidget> {
-  void acceptFriendRequest() {}
-  void rejectFriendRequest() {}
+  // accepts the friend request and deletes this widget
+  void acceptFriendRequest() async {
+    QueryResult qr = await BasicFriendRequest.acceptFriendRequest(
+      BasicFriendRequest.fetch(
+        widget.fr.requesterId,
+        widget.fr.recipientId,
+        widget.fr.insertDate,
+        widget.fr.editDate,
+      ),
+    );
+    print("accept friend request: " + qr.toString());
+
+    if (qr.result == true) {
+      widget._deleteWidget(widget.fr);
+    } else {
+      Utility.displayAlertMessage(context, "Failed to Accept",
+          "There was a problem with accepting the friend request.");
+    }
+  }
+
+  // rejects the friend request and deletes this widget
+  void rejectFriendRequest() async {
+    QueryResult qr = await BasicFriendRequest.rejectFriendRequest(
+      BasicFriendRequest.fetch(
+        widget.fr.requesterId,
+        widget.fr.recipientId,
+        widget.fr.insertDate,
+        widget.fr.editDate,
+      ),
+    );
+    print("reject friend request: " + qr.toString());
+    if (qr.result == true) {
+      widget._deleteWidget(widget.fr);
+    } else {
+      Utility.displayAlertMessage(context, "Failed to Reject",
+          "There was a problem with rejecting the friend request.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +122,7 @@ class _FriendRequestWidgetState extends State<FriendRequestWidget> {
                   ),
                 ),
                 IconButton(
-                  onPressed: acceptFriendRequest,
+                  onPressed: rejectFriendRequest,
                   icon: const Icon(
                     Icons.person_remove_rounded,
                     color: Utility.primaryColor,
