@@ -5,10 +5,17 @@ import 'package:cao_prototype/support/time_utility.dart';
 import 'package:crypto/crypto.dart';
 
 // individuals are usually students, organizations are typically businesses or sponsors, and associations are campus clubs
-enum AccountTypes { INDIVIDUAL, ORGANIZATION, ASSOCIATION }
+enum AccountTypes { UNSPECIFIED, INDIVIDUAL, ORGANIZATION, ASSOCIATION }
 
 // top level class of all inheriting account classes
 class User {
+  static const Map<AccountTypes, int> _accountTypeCodes = {
+    AccountTypes.UNSPECIFIED: -1,
+    AccountTypes.INDIVIDUAL: 0,
+    AccountTypes.ORGANIZATION: 1,
+    AccountTypes.ASSOCIATION: 2,
+  };
+
   int _id = -1;
   String _email = "";
   String _password = "";
@@ -76,6 +83,10 @@ class User {
   bool operator ==(Object other) => _equals(other);
   @override
   int get hashCode => (id.toString()).hashCode;
+
+  static int getAccountTypeCode(AccountTypes at) {
+    return _accountTypeCodes[at]!;
+  }
 
   // returns a list of users who have an alias that is similar to the provided "pattern" argument
   static Future<QueryResult> getUsersByAlias(String pattern) async {

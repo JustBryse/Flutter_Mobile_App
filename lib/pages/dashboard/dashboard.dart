@@ -171,7 +171,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Utility.tertiaryColor,
+      backgroundColor: Utility.primaryColor,
       appBar: AppBar(
         actions: [
           if (TestManagement.isDeveloperModeEnabled)
@@ -208,21 +208,19 @@ class _DashboardPageState extends State<DashboardPage> {
                   IconButton(
                     iconSize: 100,
                     padding: const EdgeInsets.all(16),
-                    color: Utility.tertiaryColor,
                     onPressed: navigateToBridge,
                     icon: const Icon(
                       Icons.question_answer,
-                      color: Utility.primaryColor,
+                      color: Utility.tertiaryColor,
                     ),
                   ),
                   IconButton(
                     iconSize: 100,
                     padding: const EdgeInsets.all(16),
-                    color: Utility.tertiaryColor,
                     onPressed: navigateToFeed,
                     icon: const Icon(
                       Icons.feed,
-                      color: Utility.primaryColor,
+                      color: Utility.tertiaryColor,
                     ),
                   ),
                 ],
@@ -233,21 +231,19 @@ class _DashboardPageState extends State<DashboardPage> {
                   IconButton(
                     iconSize: 100,
                     padding: const EdgeInsets.all(16),
-                    color: Utility.tertiaryColor,
                     onPressed: navigateToMap,
                     icon: const Icon(
                       Icons.map,
-                      color: Utility.primaryColor,
+                      color: Utility.tertiaryColor,
                     ),
                   ),
                   IconButton(
                     iconSize: 100,
                     padding: const EdgeInsets.all(16),
-                    color: Utility.tertiaryColor,
                     onPressed: navigateToProfile,
                     icon: const Icon(
                       Icons.account_circle_rounded,
-                      color: Utility.primaryColor,
+                      color: Utility.tertiaryColor,
                     ),
                   ),
                 ],

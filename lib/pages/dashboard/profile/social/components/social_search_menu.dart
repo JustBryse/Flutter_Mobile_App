@@ -5,7 +5,13 @@ import 'package:cao_prototype/support/utility.dart';
 import 'package:flutter/material.dart';
 
 class SocialSearchMenu extends StatefulWidget {
-  const SocialSearchMenu({super.key});
+  void Function() _getFriendsAndContacts = () {};
+  SocialSearchMenu({
+    Key? key,
+    required void Function() getFriendsAndContacts,
+  }) : super(key: key) {
+    _getFriendsAndContacts = getFriendsAndContacts;
+  }
 
   @override
   State<SocialSearchMenu> createState() => _SocialSearchMenuState();
@@ -37,30 +43,11 @@ class _SocialSearchMenuState extends State<SocialSearchMenu> {
       users.add(u);
       userWidgets.add(
         UserWidget(
-          deleteWidget: deleteUserWidget,
           user: u,
           width: width,
+          getFriendsAndContacts: widget._getFriendsAndContacts,
         ),
       );
-    }
-
-    setState(() {
-      userWidgets;
-    });
-  }
-
-  void deleteUserWidget(User u) {
-    int uwIndex = -1;
-    for (int i = 0; i < userWidgets.length; ++i) {
-      if (userWidgets[i].user == u) {
-        uwIndex = i;
-        break;
-      }
-    }
-
-    if (uwIndex > -1) {
-      users.remove(u);
-      userWidgets.removeAt(uwIndex);
     }
 
     setState(() {

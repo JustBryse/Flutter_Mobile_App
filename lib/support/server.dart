@@ -32,7 +32,6 @@ abstract class Server {
     var client = http.Client();
 
     Uri uri = Uri.https(url, path);
-    print("Arguments: " + arguments.toString());
     var response = await client.post(
       uri,
       body: jsonEncode(arguments),

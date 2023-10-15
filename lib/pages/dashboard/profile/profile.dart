@@ -26,7 +26,7 @@ class _DashboardProfileState extends State<DashboardProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Utility.tertiaryColor,
+      backgroundColor: Utility.primaryColor,
       appBar: AppBar(
         title: const Text(
           "Profile",
@@ -47,6 +47,7 @@ class _DashboardProfileState extends State<DashboardProfile> {
                   child: Icon(
                     Icons.account_circle,
                     size: 100,
+                    color: Utility.tertiaryColor,
                   ),
                 ),
               ),
@@ -59,7 +60,7 @@ class _DashboardProfileState extends State<DashboardProfile> {
                       onPressed: navigateToSavedThreadFeed,
                       icon: const Icon(
                         Icons.home,
-                        color: Utility.primaryColor,
+                        color: Utility.tertiaryColor,
                         size: 50,
                       ),
                     ),
@@ -67,7 +68,7 @@ class _DashboardProfileState extends State<DashboardProfile> {
                       onPressed: navigateToSocialPage,
                       icon: const Icon(
                         Icons.group,
-                        color: Utility.primaryColor,
+                        color: Utility.tertiaryColor,
                         size: 50,
                       ),
                     ),

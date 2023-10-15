@@ -1,24 +1,28 @@
 import 'package:cao_prototype/models/friend.dart';
+import 'package:cao_prototype/models/structures/user_profile.dart';
+import 'package:cao_prototype/pages/dashboard/profile/external_profile.dart';
 import 'package:cao_prototype/support/queries.dart';
+import 'package:cao_prototype/support/session.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:flutter/material.dart';
 
 class FriendWidget extends StatefulWidget {
-  void Function(Friend) _deleteWidget = (p0) => null;
   Friend _friend = Friend.none();
   Friend get friend => _friend;
   double _width = -1;
   double get width => _width;
+  // tells the social page to refresh friends and contact data
+  void Function() _getFriendsAndContacts = () {};
 
   FriendWidget({
     Key? key,
-    required Function(Friend) deleteWidget,
     required Friend friend,
     required double width,
+    required void Function() getFriendsAndContacts,
   }) : super(key: key) {
-    _deleteWidget = deleteWidget;
     _friend = friend;
     _width = width;
+    _getFriendsAndContacts = getFriendsAndContacts;
   }
 
   @override
@@ -26,25 +30,29 @@ class FriendWidget extends StatefulWidget {
 }
 
 class _FriendWidgetState extends State<FriendWidget> {
-  // delete this friend and tell the parent widget to delete this widget
-  void deleteFriend() async {
-    QueryResult qr = await BasicFriend.deleteFriend(
-      BasicFriend(
-        widget.friend.frienderId,
-        widget.friend.friendedId,
-      ),
-    );
-
-    if (qr.result) {
-      widget._deleteWidget(widget.friend);
-    } else {
-      Utility.displayAlertMessage(
-          context, "Failed to Delete", "Failed to delete friend");
-    }
-  }
-
   // navigate to direct messaging page
   void navigateToDirectMessagesPage() {}
+  void navigateToExternalProfilePage() async {
+    QueryResult qr = await UserProfile.getUserProfile(
+      Session.currentUser.id,
+      widget.friend.friendedId,
+    );
+
+    if (qr.result == false) {
+      Utility.displayAlertMessage(
+          context, "User Profile Error", "Failed to get user profile.");
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ExternalProfilePage(
+          userProfile: qr.data,
+        ),
+      ),
+    ).then((value) => widget._getFriendsAndContacts());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,9 +103,9 @@ class _FriendWidgetState extends State<FriendWidget> {
                 Padding(
                   padding: const EdgeInsets.all(4),
                   child: IconButton(
-                    onPressed: deleteFriend,
+                    onPressed: navigateToExternalProfilePage,
                     icon: const Icon(
-                      Icons.person_remove_rounded,
+                      Icons.home,
                       color: Utility.primaryColor,
                     ),
                   ),

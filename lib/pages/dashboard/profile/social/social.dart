@@ -70,9 +70,9 @@ class _SocialPageState extends State<SocialPage> {
       friends.add(f);
       friendWidgets.add(
         FriendWidget(
-          deleteWidget: deleteFriendWidget,
           friend: f,
           width: width,
+          getFriendsAndContacts: getFriendsAndContacts,
         ),
       );
     }
@@ -100,8 +100,8 @@ class _SocialPageState extends State<SocialPage> {
       contactWidgets.add(
         ContactWidget(
           width: width,
-          deleteWidget: deleteContactWidget,
           contact: c,
+          getFriendsAndContacts: getFriendsAndContacts,
         ),
       );
     }
@@ -110,24 +110,9 @@ class _SocialPageState extends State<SocialPage> {
     });
   }
 
-  // deletes the friend widget from friendWidgets which holds a friend object that matches the friend argument "f"
-  void deleteFriendWidget(Friend f) {
-    int fwIndex = -1;
-    for (int i = 0; i < friendWidgets.length; ++i) {
-      if (friendWidgets[i].friend == f) {
-        fwIndex = i;
-        break;
-      }
-    }
-
-    if (fwIndex > 0) {
-      friends.remove(f);
-      friendWidgets.removeAt(fwIndex);
-    }
-
-    setState(() {
-      friendWidgets;
-    });
+  void getFriendsAndContacts() {
+    getContacts();
+    getFriends();
   }
 
   void onRelationshipTypeChange(bool flag) {
@@ -147,7 +132,7 @@ class _SocialPageState extends State<SocialPage> {
     });
   }
 
-  Widget? buildFriendWidgets(BuildContext bc, int index) {
+  Widget? buildFriendAndContactWidgets(BuildContext bc, int index) {
     if (index == 0) {
       return Padding(
         padding: const EdgeInsets.all(8),
@@ -243,11 +228,13 @@ class _SocialPageState extends State<SocialPage> {
       body: Stack(
         children: [
           ListView.builder(
-            itemBuilder: buildFriendWidgets,
+            itemBuilder: buildFriendAndContactWidgets,
           ),
           Visibility(
             visible: isSocialSearchMenuVisible,
-            child: SocialSearchMenu(),
+            child: SocialSearchMenu(
+              getFriendsAndContacts: getFriendsAndContacts,
+            ),
           ),
         ],
       ),

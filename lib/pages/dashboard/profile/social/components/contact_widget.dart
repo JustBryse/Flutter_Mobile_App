@@ -1,5 +1,8 @@
 import 'package:cao_prototype/models/contact.dart';
+import 'package:cao_prototype/models/structures/user_profile.dart';
+import 'package:cao_prototype/pages/dashboard/profile/external_profile.dart';
 import 'package:cao_prototype/support/queries.dart';
+import 'package:cao_prototype/support/session.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -10,18 +13,18 @@ class ContactWidget extends StatefulWidget {
   double get width => _width;
   Contact _contact = Contact.none();
   Contact get contact => _contact;
-
-  void Function(Contact) _deleteWidget = (p0) => null;
+  // tells the social page to refresh friends and contact data
+  void Function() _getFriendsAndContacts = () {};
 
   ContactWidget({
     Key? key,
     required double width,
-    required Function(Contact) deleteWidget,
     required Contact contact,
+    required void Function() getFriendsAndContacts,
   }) : super(key: key) {
     _width = width;
-    _deleteWidget = deleteWidget;
     _contact = contact;
+    _getFriendsAndContacts = getFriendsAndContacts;
   }
 
   @override
@@ -29,18 +32,26 @@ class ContactWidget extends StatefulWidget {
 }
 
 class _ContactWidgetState extends State<ContactWidget> {
-  // removes the current contact from the sign-id user's contact list and deletes this widget
-  void deleteContact() async {
-    QueryResult qr = await BasicContact.deleteContact(
-      BasicContact(widget.contact.contactorId, widget.contact.contactedId),
+  void navigateToExternalProfilePage() async {
+    QueryResult qr = await UserProfile.getUserProfile(
+      Session.currentUser.id,
+      widget.contact.contactedId,
     );
 
-    if (qr.result) {
-      widget._deleteWidget(widget.contact);
-    } else {
+    if (qr.result == false) {
       Utility.displayAlertMessage(
-          context, "Failed to Delete Contact", "Please try again.");
+          context, "User Profile Error", "Failed to get user profile.");
+      return;
     }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ExternalProfilePage(
+          userProfile: qr.data,
+        ),
+      ),
+    ).then((value) => widget._getFriendsAndContacts());
   }
 
   @override
@@ -71,7 +82,9 @@ class _ContactWidgetState extends State<ContactWidget> {
                   padding: const EdgeInsets.all(4),
                   child: Text(
                     "${widget.contact.contacted.alias} (#${widget.contact.contacted.id})",
-                    style: const TextStyle(color: Utility.primaryColor),
+                    style: const TextStyle(
+                      color: Utility.primaryColor,
+                    ),
                   ),
                 ),
               ],
@@ -82,9 +95,9 @@ class _ContactWidgetState extends State<ContactWidget> {
                 Padding(
                   padding: const EdgeInsets.all(4),
                   child: IconButton(
-                    onPressed: deleteContact,
+                    onPressed: navigateToExternalProfilePage,
                     icon: const Icon(
-                      Icons.person_remove_rounded,
+                      Icons.home,
                       color: Utility.primaryColor,
                     ),
                   ),
