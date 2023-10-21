@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cao_prototype/models/individual.dart';
 import 'package:cao_prototype/models/organization.dart';
+import 'package:cao_prototype/pages/dashboard/dashboard_pageview.dart';
 import 'package:cao_prototype/pages/register.dart';
 import 'package:cao_prototype/pages/dashboard/dashboard.dart';
 import 'package:cao_prototype/support/queries.dart';
@@ -54,7 +55,8 @@ class _HomePageState extends State<HomePage> {
 
     // load dashboard page if login was successful
     if (qr.result) {
-      pushDashboardPage();
+      //pushDashboardPage();
+      pushDashboardPageView();
     } else {
       Utility.displayAlertMessage(context, "Failed to Sign In",
           "Please check your credentials and try again.");
@@ -86,7 +88,8 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           isLoggingIn = false;
         });
-        pushDashboardPage();
+        //pushDashboardPage();
+        pushDashboardPageView();
       } else {
         Utility.displayAlertMessage(context, "Failed to Sign In",
             "Please check your credentials and try again.");
@@ -98,6 +101,16 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void pushDashboardPageView() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const DashboardPageView(),
+      ),
+    );
+  }
+
+  /*
   void pushDashboardPage() {
     Navigator.push(
       context,
@@ -105,7 +118,7 @@ class _HomePageState extends State<HomePage> {
         builder: (_) => const DashboardPage(),
       ),
     );
-  }
+  }*/
 
   // navigate to the register page, recieves a boolean from the register page that if true indicates the creation of a User account
   void pushRegisterPage() {

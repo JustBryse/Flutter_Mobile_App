@@ -8,7 +8,7 @@ import 'package:cao_prototype/firebase/firebase_api.dart';
 import 'package:cao_prototype/notifications/models/friend_request_response_notification.dart';
 import 'package:cao_prototype/notifications/models/unactionable_notification.dart';
 import 'package:cao_prototype/notifications/notification_database.dart';
-import 'package:cao_prototype/pages/dashboard/components/unactionable_notification_widget.dart';
+import 'package:cao_prototype/pages/components/component_pages/notification_components/unactionable_notification_widget.dart';
 import 'package:cao_prototype/support/queries.dart';
 import 'package:cao_prototype/support/utility.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';

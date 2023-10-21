@@ -1,9 +1,9 @@
 import 'package:cao_prototype/firebase/firebase_api.dart';
 import 'package:cao_prototype/models/friend_request.dart';
-import 'package:cao_prototype/pages/dashboard/components/association_invitation_menu.dart';
-import 'package:cao_prototype/pages/dashboard/components/friend_request_menu.dart';
-import 'package:cao_prototype/pages/dashboard/components/friend_request_widget.dart';
-import 'package:cao_prototype/pages/dashboard/components/unactionable_notification_widget.dart';
+
+import 'package:cao_prototype/pages/components/component_pages/notification_components/friend_request_menu.dart';
+import 'package:cao_prototype/pages/components/component_pages/notification_components/friend_request_widget.dart';
+import 'package:cao_prototype/pages/components/component_pages/notification_components/unactionable_notification_widget.dart';
 import 'package:cao_prototype/pages/dashboard/profile/profile.dart';
 import 'package:cao_prototype/pages/dashboard/profile/social/social.dart';
 import 'package:cao_prototype/notifications/notification_manager.dart';
@@ -14,6 +14,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+
+import '../../components/component_pages/notification_components/association_invitation_menu.dart';
 
 class AppBarNotificationMenu extends StatefulWidget {
   double _notificationWidth = -1;

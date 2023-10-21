@@ -45,6 +45,7 @@ dependencies:
   device_info_plus: ^9.0.3
   flutter_launcher_icons: ^0.13.1
   path_provider: 
+  carousel_slider: ^4.2.1
   
   flutter:
     sdk: flutter

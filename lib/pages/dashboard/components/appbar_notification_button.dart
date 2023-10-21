@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:cao_prototype/firebase/firebase_api.dart';
-import 'package:cao_prototype/pages/dashboard/components/unactionable_notification_widget.dart';
+import 'package:cao_prototype/pages/components/component_pages/notification_components/unactionable_notification_widget.dart';
 import 'package:cao_prototype/pages/dashboard/profile/profile.dart';
 import 'package:cao_prototype/pages/dashboard/profile/social/social.dart';
 import 'package:cao_prototype/notifications/notification_manager.dart';
@@ -46,7 +46,7 @@ class _AppBarNotificationButtonState extends State<AppBarNotificationButton>
     with WidgetsBindingObserver {
   bool isProfileMenuVisible = false;
   Icon accountButtonIcon = const Icon(Icons.notifications_none_rounded);
-
+  /*
   @override
   void initState() {
     // initialize firebase foreground message handler
@@ -73,7 +73,7 @@ class _AppBarNotificationButtonState extends State<AppBarNotificationButton>
     if (AppLifecycleState.resumed == state) {
       handleBackgroundNotificationsOnResumeState();
     }
-  }
+  }*/
 
   /* Top level function that is responsible for processing notifications that were received in the background state and saved
   in the front-end sql database. */
